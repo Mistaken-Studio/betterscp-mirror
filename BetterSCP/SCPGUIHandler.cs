@@ -347,6 +347,7 @@ namespace Mistaken.BetterSCP
                     this.SendFakeUnitName(player, item);
 
                 player.SendFakeSyncVar(Server.Host.ReferenceHub.networkIdentity, typeof(CharacterClassManager), nameof(CharacterClassManager.NetworkCurClass), (sbyte)RoleType.NtfCaptain);
+                player.SendFakeSyncVar(Server.Host.ReferenceHub.networkIdentity, typeof(CharacterClassManager), nameof(CharacterClassManager.NetworkCurClass), (sbyte)RoleType.Spectator);
             }
 
             this.blockUpdate = false;
