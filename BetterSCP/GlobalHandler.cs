@@ -54,32 +54,39 @@ namespace Mistaken.BetterSCP
             if (player.GetEffectActive<CustomPlayerEffects.Flashed>())
                 return;
             Exiled.API.Features.Log.Debug($"[Panic] Post flash {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
-            var scpPosition = scp.Position;
-            if (Vector3.Dot((player.Position - scpPosition).normalized, scp.ReferenceHub.PlayerCameraReference.forward) >= 0.1f)
-            {
-                VisionInformation visionInformation = VisionInformation.GetVisionInformation(player.ReferenceHub, scpPosition, -0.1f, 30f, true, true, scp.ReferenceHub.localCurrentRoomEffects);
-                if (visionInformation.IsLooking)
-                {
-                    if (LastSeeTime.TryGetValue(player.UserId, out DateTime lastSeeTime) && (DateTime.Now - lastSeeTime).TotalSeconds < 60)
-                    {
-                        LastSeeTime[player.UserId] = DateTime.Now;
-                        Exiled.API.Features.Log.Debug($"[Panic] Panic cooldown active for {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
-                        return;
-                    }
 
-                    player.EnableEffect<CustomPlayerEffects.Invigorated>(5, true);
-                    if (!player.GetEffectActive<CustomPlayerEffects.Panic>())
-                        player.EnableEffect<CustomPlayerEffects.Panic>(15, true);
-                    player.SetGUI("panic", PseudoGUIPosition.MIDDLE, "Zaczynasz <color=yellow>panikować</color>", 3);
-                    LastSeeTime[player.UserId] = DateTime.Now;
-                }
-                else
-                    Exiled.API.Features.Log.Debug($"[Panic] Not looking: {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
-            }
-            else
+            Vector3 realModelPosition = player.Position;
+            if (
+                VisionInformation.GetVisionInformation(
+                    player.ReferenceHub,
+                    realModelPosition,
+                    -2f,
+                    40f,
+                    false,
+                    false,
+                    player.ReferenceHub.localCurrentRoomEffects,
+                    0)
+                .IsLooking
+                && (
+                    !Physics.Linecast(realModelPosition + new Vector3(0f, 1.5f, 0f), player.CameraTransform.position, VisionInformation.VisionLayerMask)
+                    || !Physics.Linecast(realModelPosition + new Vector3(0f, -1f, 0f), player.CameraTransform.position, VisionInformation.VisionLayerMask)
+                )
+            )
             {
-                Exiled.API.Features.Log.Debug($"[Panic] Not looking2: {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
+                if (LastSeeTime.TryGetValue(player.UserId, out DateTime lastSeeTime) && (DateTime.Now - lastSeeTime).TotalSeconds < 60)
+                {
+                    LastSeeTime[player.UserId] = DateTime.Now;
+                    Exiled.API.Features.Log.Debug($"[Panic] Panic cooldown active for {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
+                    return;
+                }
+
+                player.EnableEffect<CustomPlayerEffects.Invigorated>(5, true);
+                if (!player.GetEffectActive<CustomPlayerEffects.Panic>())
+                    player.EnableEffect<CustomPlayerEffects.Panic>(15, true);
+                player.SetGUI("panic", PseudoGUIPosition.MIDDLE, "Zaczynasz <color=yellow>panikować</color>", 3);
+                LastSeeTime[player.UserId] = DateTime.Now;
             }
+
             Exiled.API.Features.Log.Debug($"[Panic] End {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
         };
 
