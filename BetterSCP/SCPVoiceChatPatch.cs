@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System.Collections.Generic;
+using Exiled.API.Features;
 using HarmonyLib;
 using Mirror;
 using Mistaken.API.Extensions;
@@ -25,9 +26,19 @@ namespace Mistaken.BetterSCP
             CharacterClassManager ccm = hub.characterClassManager;
 
             if (MimicedRoles.Contains(ccm.CurClass))
+            {
+                Log.Debug("[Mimic] Granted: Class");
                 hub.dissonanceUserSetup.MimicAs939 = msg.IsMimicking;
+            }
             else if (ccm.IsAnyScp() && (HasAccessToSCPAlt.Contains(ccm.UserId) || ccm.UserId.IsDevUserId()))
+            {
+                Log.Debug("[Mimic] Granted: Override");
                 hub.dissonanceUserSetup.MimicAs939 = msg.IsMimicking;
+            }
+            else
+            {
+                Log.Debug("[Mimic] Denied");
+            }
 
             return true;
         }
