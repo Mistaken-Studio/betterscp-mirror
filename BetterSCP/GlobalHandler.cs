@@ -44,12 +44,16 @@ namespace Mistaken.BetterSCP
         private static readonly Dictionary<string, DateTime> LastSeeTime = new Dictionary<string, DateTime>();
         private static readonly Func<Player, Action<Player>> OnEnterVision = (player) => (scp) =>
         {
+            Exiled.API.Features.Log.Debug($"[Panic] Begin {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
             if (!scp.IsScp || scp.Role == RoleType.Scp079)
                 return;
+            Exiled.API.Features.Log.Debug($"[Panic] Post SCP {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
             if (!player.IsHuman)
                 return;
+            Exiled.API.Features.Log.Debug($"[Panic] Post Human {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
             if (player.GetEffectActive<CustomPlayerEffects.Flashed>())
                 return;
+            Exiled.API.Features.Log.Debug($"[Panic] Post flash {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
             var scpPosition = scp.Position;
             if (Vector3.Dot((player.Position - scpPosition).normalized, scp.ReferenceHub.PlayerCameraReference.forward) >= 0.1f)
             {
@@ -76,6 +80,7 @@ namespace Mistaken.BetterSCP
             {
                 Exiled.API.Features.Log.Debug($"[Panic] Not looking2: {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
             }
+            Exiled.API.Features.Log.Debug($"[Panic] End {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
         };
 
         private void Player_Verified(Exiled.Events.EventArgs.VerifiedEventArgs ev)

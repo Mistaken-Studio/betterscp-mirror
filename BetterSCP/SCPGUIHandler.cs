@@ -194,18 +194,23 @@ namespace Mistaken.BetterSCP
 
             if (Round.ElapsedTime.TotalSeconds < 2.5f)
                 return;
-            this.CallDelayed(
-                .2f,
-                () =>
-                {
-                    if (ev.NewRole.GetSide() != Side.Scp && ev.Player.Role.GetSide() == Side.Scp)
+            if (ev.NewRole.GetSide() != Side.Scp && ev.Player.Role.GetSide() == Side.Scp)
+            {
+                this.CallDelayed(
+                    .2f,
+                    () =>
                     {
                         this.SyncSCP(true);
 
                         // ClearUnitNames(ev.Player);
                         this.ResyncUnitName(ev.Player);
-                    }
-                    else if (ev.NewRole.GetSide() == Side.Scp)
+                    });
+            }
+            else if (ev.NewRole.GetSide() == Side.Scp)
+            {
+                this.CallDelayed(
+                    .2f,
+                    () =>
                     {
                         this.CallDelayed(
                             1,
@@ -216,8 +221,8 @@ namespace Mistaken.BetterSCP
                             },
                             "LateForceNoBaseGameHierarchy");
                         this.SyncSCP(true);
-                    }
-                });
+                    });
+            }
         }
 
         private string GetColorByHP(Player player)
