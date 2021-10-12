@@ -55,7 +55,7 @@ namespace Mistaken.BetterSCP
                 return;
             Exiled.API.Features.Log.Debug($"[Panic] Post flash {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
 
-            Vector3 realModelPosition = player.Position;
+            Vector3 realModelPosition = scp.Position;
             if (
                 VisionInformation.GetVisionInformation(
                     player.ReferenceHub,
@@ -64,7 +64,7 @@ namespace Mistaken.BetterSCP
                     40f,
                     false,
                     false,
-                    player.ReferenceHub.localCurrentRoomEffects,
+                    scp.ReferenceHub.localCurrentRoomEffects,
                     0)
                 .IsLooking
                 && (
@@ -85,6 +85,7 @@ namespace Mistaken.BetterSCP
                     player.EnableEffect<CustomPlayerEffects.Panic>(15, true);
                 player.SetGUI("panic", PseudoGUIPosition.MIDDLE, "Zaczynasz <color=yellow>panikować</color>", 3);
                 LastSeeTime[player.UserId] = DateTime.Now;
+                Exiled.API.Features.Log.Debug($"[Panic] Activated {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
             }
 
             Exiled.API.Features.Log.Debug($"[Panic] End {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
