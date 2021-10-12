@@ -5,36 +5,28 @@
 // -----------------------------------------------------------------------
 
 using System.Collections.Generic;
-using Assets._Scripts.Dissonance;
 using HarmonyLib;
+using Mirror;
+using PlayableScps.Messages;
 
 namespace Mistaken.BetterSCP
 {
-    [HarmonyPatch(typeof(DissonanceUserSetup), "CallCmdAltIsActive")]
+    [HarmonyPatch(typeof(PlayableScps.Scp939), nameof(PlayableScps.Scp939.ServerReceivedVoiceMsg))]
     internal static class SCPVoiceChatPatch
     {
-        public static readonly List<RoleType> MimicedRoles = new List<RoleType>();
+        public static readonly HashSet<RoleType> MimicedRoles = new HashSet<RoleType>();
 
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        public static bool Prefix(DissonanceUserSetup __instance, bool value)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
+        public static bool Prefix(NetworkConnection conn, Scp939VoiceMessage msg)
         {
-            CharacterClassManager ccm = ReferenceHub.GetHub(__instance.gameObject).characterClassManager;
+            if (!ReferenceHub.TryGetHubNetID(conn.identity.netId, out ReferenceHub hub))
+                return false;
+
+            CharacterClassManager ccm = hub.characterClassManager;
 
             if (MimicedRoles.Contains(ccm.CurClass))
-            {
-                if (value && (__instance.NetworkspeakingFlags & SpeakingFlags.MimicAs939) == 0)
-                    __instance.NetworkspeakingFlags |= SpeakingFlags.MimicAs939;
-                else if (!value && (__instance.NetworkspeakingFlags & SpeakingFlags.MimicAs939) != 0)
-                    __instance.NetworkspeakingFlags ^= SpeakingFlags.MimicAs939;
-            }
+                hub.dissonanceUserSetup.MimicAs939 = msg.IsMimicking;
             else if (ccm.IsAnyScp() && HasAccessToSCPAlt.Contains(ccm.UserId))
-            {
-                if (value && (__instance.NetworkspeakingFlags & SpeakingFlags.MimicAs939) == 0)
-                    __instance.NetworkspeakingFlags |= SpeakingFlags.MimicAs939;
-                else if (!value && (__instance.NetworkspeakingFlags & SpeakingFlags.MimicAs939) != 0)
-                    __instance.NetworkspeakingFlags ^= SpeakingFlags.MimicAs939;
-            }
+                hub.dissonanceUserSetup.MimicAs939 = msg.IsMimicking;
 
             return true;
         }
