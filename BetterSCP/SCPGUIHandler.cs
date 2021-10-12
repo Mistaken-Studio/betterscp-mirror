@@ -193,26 +193,30 @@ namespace Mistaken.BetterSCP
 
             if (Round.ElapsedTime.TotalSeconds < 2.5f)
                 return;
-
-            if (ev.NewRole.GetSide() != Side.Scp && ev.Player.Role.GetSide() == Side.Scp)
-            {
-                this.SyncSCP(true);
-
-                // ClearUnitNames(ev.Player);
-                this.ResyncUnitName(ev.Player);
-            }
-            else if (ev.NewRole.GetSide() == Side.Scp)
-            {
-                this.CallDelayed(
-                    1,
-                    () =>
+            this.CallDelayed(
+                .2f,
+                () =>
+                {
+                    if (ev.NewRole.GetSide() != Side.Scp && ev.Player.Role.GetSide() == Side.Scp)
                     {
-                        foreach (var item in RealPlayers.List.Where(p => p != ev.Player && p.Connection != null))
-                            item.SendFakeSyncVar(ev.Player.Connection.identity, typeof(CharacterClassManager), nameof(CharacterClassManager.NetworkCurSpawnableTeamType), 0);
-                    },
-                    "LateForceNoBaseGameHierarchy");
-                this.SyncSCP(true);
-            }
+                        this.SyncSCP(true);
+
+                        // ClearUnitNames(ev.Player);
+                        this.ResyncUnitName(ev.Player);
+                    }
+                    else if (ev.NewRole.GetSide() == Side.Scp)
+                    {
+                        this.CallDelayed(
+                            1,
+                            () =>
+                            {
+                                foreach (var item in RealPlayers.List.Where(p => p != ev.Player && p.Connection != null))
+                                    item.SendFakeSyncVar(ev.Player.Connection.identity, typeof(CharacterClassManager), nameof(CharacterClassManager.NetworkCurSpawnableTeamType), 0);
+                            },
+                            "LateForceNoBaseGameHierarchy");
+                        this.SyncSCP(true);
+                    }
+                });
         }
 
         private string GetColorByHP(Player player)
