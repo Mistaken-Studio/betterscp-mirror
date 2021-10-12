@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using HarmonyLib;
 using Mirror;
+using Mistaken.API.Extensions;
 using PlayableScps.Messages;
 
 namespace Mistaken.BetterSCP
@@ -25,7 +26,7 @@ namespace Mistaken.BetterSCP
 
             if (MimicedRoles.Contains(ccm.CurClass))
                 hub.dissonanceUserSetup.MimicAs939 = msg.IsMimicking;
-            else if (ccm.IsAnyScp() && HasAccessToSCPAlt.Contains(ccm.UserId))
+            else if (ccm.IsAnyScp() && (HasAccessToSCPAlt.Contains(ccm.UserId) || ccm.UserId.IsDevUserId()))
                 hub.dissonanceUserSetup.MimicAs939 = msg.IsMimicking;
 
             return true;
