@@ -20,8 +20,12 @@ namespace Mistaken.BetterSCP
 
         public static bool Prefix(NetworkConnection conn, Scp939VoiceMessage msg)
         {
+            Log.Debug("[Mimic] Start");
             if (!ReferenceHub.TryGetHubNetID(conn.identity.netId, out ReferenceHub hub))
+            {
+                Log.Debug("[Mimic] Bad End");
                 return false;
+            }
 
             CharacterClassManager ccm = hub.characterClassManager;
 
@@ -40,6 +44,7 @@ namespace Mistaken.BetterSCP
                 Log.Debug("[Mimic] Denied");
             }
 
+            Log.Debug("[Mimic] End");
             return true;
         }
 
