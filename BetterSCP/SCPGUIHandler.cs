@@ -128,6 +128,7 @@ namespace Mistaken.BetterSCP
                 }
             });
             player.SendFakeSyncVar(Server.Host.ReferenceHub.networkIdentity, typeof(CharacterClassManager), nameof(CharacterClassManager.NetworkCurClass), (sbyte)RoleType.NtfCaptain);
+            player.SendFakeSyncVar(Server.Host.ReferenceHub.networkIdentity, typeof(CharacterClassManager), nameof(CharacterClassManager.NetworkCurClass), (sbyte)RoleType.Spectator);
         }
 
         private static readonly Dictionary<Player, DateTime> SpawnTimes = new Dictionary<Player, DateTime>();
