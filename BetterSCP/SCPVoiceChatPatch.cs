@@ -13,7 +13,7 @@ using PlayableScps.Messages;
 
 namespace Mistaken.BetterSCP
 {
-    [HarmonyPatch(typeof(PlayableScps.Scp939), nameof(PlayableScps.Scp939.ServerReceivedVoiceMsg))]
+    //[HarmonyPatch(typeof(PlayableScps.Scp939), nameof(PlayableScps.Scp939.ServerReceivedVoiceMsg))]
     internal static class SCPVoiceChatPatch
     {
         public static readonly HashSet<RoleType> MimicedRoles = new HashSet<RoleType>();
@@ -49,5 +49,30 @@ namespace Mistaken.BetterSCP
         }
 
         internal static readonly HashSet<string> HasAccessToSCPAlt = new HashSet<string>();
+    }
+
+    [HarmonyPatch(typeof(Radio), nameof(Radio.UserCode_CmdSyncTransmissionStatus))]
+    public static class SpeechPatch
+    {
+        public static bool Prefix(Radio __instance, bool b)
+        {
+            CharacterClassManager ccm = __instance._hub.characterClassManager;
+            if (SCPVoiceChatPatch.MimicedRoles.Contains(ccm.CurClass))
+            {
+                Log.Debug("[Mimic] Granted: Class");
+                __instance._dissonanceSetup.MimicAs939 = b;
+            }
+            else if (ccm.IsAnyScp() && (SCPVoiceChatPatch.HasAccessToSCPAlt.Contains(ccm.UserId) || ccm.UserId.IsDevUserId()))
+            {
+                Log.Debug("[Mimic] Granted: Override");
+                __instance._dissonanceSetup.MimicAs939 = b;
+            }
+            else
+            {
+                Log.Debug("[Mimic] Denied");
+            }
+
+            return true;
+        }
     }
 }
