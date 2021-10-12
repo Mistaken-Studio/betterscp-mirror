@@ -59,6 +59,7 @@ namespace Mistaken.BetterSCP
                     if (LastSeeTime.TryGetValue(player.UserId, out DateTime lastSeeTime) && (DateTime.Now - lastSeeTime).TotalSeconds < 60)
                     {
                         LastSeeTime[player.UserId] = DateTime.Now;
+                        Exiled.API.Features.Log.Debug($"[Panic] Panic cooldown active for {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
                         return;
                     }
 
@@ -68,6 +69,12 @@ namespace Mistaken.BetterSCP
                     player.SetGUI("panic", PseudoGUIPosition.MIDDLE, "Zaczynasz <color=yellow>panikować</color>", 3);
                     LastSeeTime[player.UserId] = DateTime.Now;
                 }
+                else
+                    Exiled.API.Features.Log.Debug($"[Panic] Not looking: {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
+            }
+            else
+            {
+                Exiled.API.Features.Log.Debug($"[Panic] Not looking2: {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
             }
         };
 
