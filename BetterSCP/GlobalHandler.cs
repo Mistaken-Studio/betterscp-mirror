@@ -108,13 +108,15 @@ namespace Mistaken.BetterSCP
             {
                 var randomPlayer = spectators[UnityEngine.Random.Range(0, spectators.Length)];
 
+                var position = ev.Player.Position;
+
                 randomPlayer.SetRole(ev.Player.Role, SpawnReason.ForceClass, false);
-                randomPlayer.Position = ev.Player.Position;
                 randomPlayer.Health = ev.Player.Health;
                 randomPlayer.MaxArtificialHealth = ev.Player.MaxArtificialHealth;
                 randomPlayer.Level = ev.Player.Level;
                 randomPlayer.Energy = ev.Player.Energy;
                 randomPlayer.Experience = ev.Player.Experience;
+                this.CallDelayed(.2f, () => randomPlayer.Position = position, "LateTeleport");
 
                 ev.Player.SetRole(RoleType.Spectator, SpawnReason.None);
             }
