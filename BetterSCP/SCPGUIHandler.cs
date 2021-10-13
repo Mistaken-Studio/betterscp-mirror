@@ -416,7 +416,7 @@ namespace Mistaken.BetterSCP
 
             string fullmsg = string.Join("<br>", message);
             if (this.TimeSinceChangedRole(p).TotalSeconds < 30 && SCPMessages.TryGetValue(p.Role, out string roleMessage))
-                fullmsg = $"<size=40><voffset=20em>{roleMessage}<br><br><br><size=90%>{fullmsg}</size><br><br><br><br><br><br><br><br><br><br></voffset></size>";
+                fullmsg = $"<size=40><voffset=1em>{roleMessage}<br><br><br><size=90%>{fullmsg}</size><br><br><br><br><br><br><br><br><br><br></voffset></size>";
 
             p.ShowHint(fullmsg, 2);
 
