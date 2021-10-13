@@ -13,63 +13,37 @@ using PlayableScps.Messages;
 
 namespace Mistaken.BetterSCP
 {
-    //[HarmonyPatch(typeof(PlayableScps.Scp939), nameof(PlayableScps.Scp939.ServerReceivedVoiceMsg))]
-    internal static class SCPVoiceChatPatch
+    /// <summary>
+    /// Patch used to allow other scps to speak like SCP-939.
+    /// </summary>
+    [HarmonyPatch(typeof(Radio), nameof(Radio.UserCode_CmdSyncTransmissionStatus))]
+    public static class SCPVoiceChatPatch
     {
+        /// <summary>
+        /// List of scp classes that can use human voice chat.
+        /// </summary>
         public static readonly HashSet<RoleType> MimicedRoles = new HashSet<RoleType>();
 
-        public static bool Prefix(NetworkConnection conn, Scp939VoiceMessage msg)
-        {
-            Log.Debug("[Mimic] Start");
-            if (!ReferenceHub.TryGetHubNetID(conn.identity.netId, out ReferenceHub hub))
-            {
-                Log.Debug("[Mimic] Bad End");
-                return false;
-            }
-
-            CharacterClassManager ccm = hub.characterClassManager;
-
-            if (MimicedRoles.Contains(ccm.CurClass))
-            {
-                Log.Debug("[Mimic] Granted: Class");
-                hub.dissonanceUserSetup.MimicAs939 = msg.IsMimicking;
-            }
-            else if (ccm.IsAnyScp() && (HasAccessToSCPAlt.Contains(ccm.UserId) || ccm.UserId.IsDevUserId()))
-            {
-                Log.Debug("[Mimic] Granted: Override");
-                hub.dissonanceUserSetup.MimicAs939 = msg.IsMimicking;
-            }
-            else
-            {
-                Log.Debug("[Mimic] Denied");
-            }
-
-            Log.Debug("[Mimic] End");
-            return true;
-        }
-
         internal static readonly HashSet<string> HasAccessToSCPAlt = new HashSet<string>();
-    }
 
-    [HarmonyPatch(typeof(Radio), nameof(Radio.UserCode_CmdSyncTransmissionStatus))]
-    public static class SpeechPatch
-    {
-        public static bool Prefix(Radio __instance, bool b)
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
+        internal static bool Prefix(Radio __instance, bool b)
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             CharacterClassManager ccm = __instance._hub.characterClassManager;
-            if (SCPVoiceChatPatch.MimicedRoles.Contains(ccm.CurClass))
+            if (MimicedRoles.Contains(ccm.CurClass))
             {
-                Log.Debug("[Mimic] Granted: Class");
+                Log.Debug("[Mimic] Granted: Class", PluginHandler.Instance.Config.VerbouseOutput);
                 __instance._dissonanceSetup.MimicAs939 = b;
             }
-            else if (ccm.IsAnyScp() && (SCPVoiceChatPatch.HasAccessToSCPAlt.Contains(ccm.UserId) || ccm.UserId.IsDevUserId()))
+            else if (ccm.IsAnyScp() && HasAccessToSCPAlt.Contains(ccm.UserId))
             {
-                Log.Debug("[Mimic] Granted: Override");
+                Log.Debug("[Mimic] Granted: Override", PluginHandler.Instance.Config.VerbouseOutput);
                 __instance._dissonanceSetup.MimicAs939 = b;
             }
             else
             {
-                Log.Debug("[Mimic] Denied");
+                Log.Debug("[Mimic] Denied", PluginHandler.Instance.Config.VerbouseOutput);
             }
 
             return true;
