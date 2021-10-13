@@ -109,6 +109,11 @@ namespace Mistaken.BetterSCP
                 var randomPlayer = spectators[UnityEngine.Random.Range(0, spectators.Length)];
 
                 var position = ev.Player.Position;
+                var hp = ev.Player.Health;
+                var ahp = ev.Player.ArtificialHealth;
+                var lvl = ev.Player.Level;
+                var energy = ev.Player.Energy;
+                var experience = ev.Player.Experience;
 
                 randomPlayer.SetRole(ev.Player.Role, SpawnReason.ForceClass, false);
                 this.CallDelayed(
@@ -116,11 +121,11 @@ namespace Mistaken.BetterSCP
                     () =>
                     {
                         randomPlayer.Position = position;
-                        randomPlayer.Health = ev.Player.Health;
-                        randomPlayer.ArtificialHealth = ev.Player.ArtificialHealth;
-                        randomPlayer.Level = ev.Player.Level;
-                        randomPlayer.Energy = ev.Player.Energy;
-                        randomPlayer.Experience = ev.Player.Experience;
+                        randomPlayer.Health = hp;
+                        randomPlayer.ArtificialHealth = ahp;
+                        randomPlayer.Level = lvl;
+                        randomPlayer.Energy = energy;
+                        randomPlayer.Experience = experience;
                     },
                     "LateTeleport");
 
