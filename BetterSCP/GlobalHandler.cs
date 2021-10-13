@@ -112,7 +112,7 @@ namespace Mistaken.BetterSCP
 
                 randomPlayer.SetRole(ev.Player.Role, SpawnReason.ForceClass, false);
                 randomPlayer.Health = ev.Player.Health;
-                randomPlayer.MaxArtificialHealth = ev.Player.MaxArtificialHealth;
+                randomPlayer.ArtificialHealth = ev.Player.ArtificialHealth;
                 randomPlayer.Level = ev.Player.Level;
                 randomPlayer.Energy = ev.Player.Energy;
                 randomPlayer.Experience = ev.Player.Experience;
