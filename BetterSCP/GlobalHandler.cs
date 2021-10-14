@@ -120,12 +120,19 @@ namespace Mistaken.BetterSCP
                     .2f,
                     () =>
                     {
-                        randomPlayer.Position = position;
                         randomPlayer.Health = hp;
                         randomPlayer.ArtificialHealth = ahp;
                         randomPlayer.Level = lvl;
                         randomPlayer.Energy = energy;
                         randomPlayer.Experience = experience;
+                    },
+                    "LateSync");
+
+                this.CallDelayed(
+                    .5f,
+                    () =>
+                    {
+                        randomPlayer.Position = position;
                     },
                     "LateTeleport");
 
