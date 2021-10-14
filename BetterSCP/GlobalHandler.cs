@@ -102,6 +102,7 @@ namespace Mistaken.BetterSCP
 
             if (spectators.Length == 0)
             {
+                ev.Player.IsGodModeEnabled = false;
                 ev.Player.Kill(DamageTypes.Wall);
             }
             else
