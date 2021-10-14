@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Exiled.API.Enums;
 using Exiled.API.Features;
+using Mistaken.API;
 using Mistaken.API.Components;
 using Mistaken.API.Diagnostics;
 using Mistaken.API.Extensions;
@@ -33,12 +35,14 @@ namespace Mistaken.BetterSCP
         public override void OnEnable()
         {
             Exiled.Events.Handlers.Player.Verified += this.Handle<Exiled.Events.EventArgs.VerifiedEventArgs>((ev) => this.Player_Verified(ev));
+            Exiled.Events.Handlers.Player.Destroying += this.Handle<Exiled.Events.EventArgs.DestroyingEventArgs>((ev) => this.Player_Destroying(ev));
         }
 
         /// <inheritdoc/>
         public override void OnDisable()
         {
             Exiled.Events.Handlers.Player.Verified -= this.Handle<Exiled.Events.EventArgs.VerifiedEventArgs>((ev) => this.Player_Verified(ev));
+            Exiled.Events.Handlers.Player.Destroying -= this.Handle<Exiled.Events.EventArgs.DestroyingEventArgs>((ev) => this.Player_Destroying(ev));
         }
 
         private static readonly Dictionary<string, DateTime> LastSeeTime = new Dictionary<string, DateTime>();
@@ -88,6 +92,48 @@ namespace Mistaken.BetterSCP
 
             Exiled.API.Features.Log.Debug($"[Panic] End {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
         };
+
+        private void Player_Destroying(Exiled.Events.EventArgs.DestroyingEventArgs ev)
+        {
+            if (!ev.Player.IsScp)
+                return;
+
+            var spectators = RealPlayers.Get(Team.RIP).ToArray();
+
+            if (spectators.Length == 0)
+            {
+                ev.Player.IsGodModeEnabled = false;
+                ev.Player.Kill(DamageTypes.Wall);
+            }
+            else
+            {
+                var randomPlayer = spectators[UnityEngine.Random.Range(0, spectators.Length)];
+
+                var position = ev.Player.Position;
+                var hp = ev.Player.Health;
+                var ahp = ev.Player.ArtificialHealth;
+                var lvl = ev.Player.Level;
+                var energy = ev.Player.Energy;
+                var experience = ev.Player.Experience;
+
+                randomPlayer.SetRole(ev.Player.Role, SpawnReason.ForceClass, false);
+                this.CallDelayed(
+                    .2f,
+                    () =>
+                    {
+                        randomPlayer.Health = hp;
+                        randomPlayer.ArtificialHealth = ahp;
+                        randomPlayer.Level = lvl;
+                        randomPlayer.Energy = energy;
+                        randomPlayer.Experience = experience;
+                    },
+                    "LateSync");
+
+                this.CallDelayed(.5f, () => randomPlayer.Position = position, "LateTeleport");
+
+                ev.Player.SetRole(RoleType.Spectator, SpawnReason.None);
+            }
+        }
 
         private void Player_Verified(Exiled.Events.EventArgs.VerifiedEventArgs ev)
         {
