@@ -128,13 +128,7 @@ namespace Mistaken.BetterSCP
                     },
                     "LateSync");
 
-                this.CallDelayed(
-                    .5f,
-                    () =>
-                    {
-                        randomPlayer.Position = position;
-                    },
-                    "LateTeleport");
+                this.CallDelayed(.5f, () => randomPlayer.Position = position, "LateTeleport");
 
                 ev.Player.SetRole(RoleType.Spectator, SpawnReason.None);
             }
