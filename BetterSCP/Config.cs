@@ -4,6 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.Collections.Generic;
 using System.ComponentModel;
 using Mistaken.Updater.Config;
 
@@ -20,6 +21,16 @@ namespace Mistaken.BetterSCP
         /// </summary>
         [Description("If true then debug will be displayed")]
         public bool VerbouseOutput { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of SCPs that can use human voice chat.
+        /// </summary>
+        [Description("List of SCPs that can use human voice chat (SCP-939 mimic)")]
+        public List<RoleType> AllowedSCPVCRoles { get; set; } = new List<RoleType>()
+        {
+            RoleType.Scp93953,
+            RoleType.Scp93989,
+        };
 
         /// <inheritdoc/>
         [Description("Auto Update Settings")]
