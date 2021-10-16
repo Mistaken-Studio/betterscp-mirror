@@ -22,6 +22,50 @@ namespace Mistaken.BetterSCP
     /// <inheritdoc/>
     public class GlobalHandler : Module
     {
+        /// <summary>
+        /// Kills <paramref name="player"/> and selects random spectator to replace him.
+        /// This is used to not lose SCPs when player leaves server and there are spectators.
+        /// </summary>
+        /// <param name="player">Player to change.</param>
+        public static void RespawnSCP(Player player)
+        {
+            var spectators = RealPlayers.Get(Team.RIP).ToArray();
+
+            if (spectators.Length == 0)
+            {
+                player.IsGodModeEnabled = false;
+                player.Kill(DamageTypes.Wall);
+            }
+            else
+            {
+                var randomPlayer = spectators[UnityEngine.Random.Range(0, spectators.Length)];
+
+                var position = player.Position;
+                var hp = player.Health;
+                var ahp = player.ArtificialHealth;
+                var lvl = player.Level;
+                var energy = player.Energy;
+                var experience = player.Experience;
+
+                randomPlayer.SetRole(player.Role, SpawnReason.ForceClass, false);
+                Module.CallSafeDelayed(
+                    .2f,
+                    () =>
+                    {
+                        randomPlayer.Health = hp;
+                        randomPlayer.ArtificialHealth = ahp;
+                        randomPlayer.Level = lvl;
+                        randomPlayer.Energy = energy;
+                        randomPlayer.Experience = experience;
+                    },
+                    "GlobalHandler.LateSync");
+
+                Module.CallSafeDelayed(.5f, () => randomPlayer.Position = position, "GlobalHandler.LateTeleport");
+
+                player.SetRole(RoleType.Spectator, SpawnReason.None);
+            }
+        }
+
         /// <inheritdoc cref="Module.Module(Exiled.API.Interfaces.IPlugin{Exiled.API.Interfaces.IConfig})"/>
         public GlobalHandler(PluginHandler p)
             : base(p)
@@ -98,41 +142,7 @@ namespace Mistaken.BetterSCP
             if (!ev.Player.IsScp)
                 return;
 
-            var spectators = RealPlayers.Get(Team.RIP).ToArray();
-
-            if (spectators.Length == 0)
-            {
-                ev.Player.IsGodModeEnabled = false;
-                ev.Player.Kill(DamageTypes.Wall);
-            }
-            else
-            {
-                var randomPlayer = spectators[UnityEngine.Random.Range(0, spectators.Length)];
-
-                var position = ev.Player.Position;
-                var hp = ev.Player.Health;
-                var ahp = ev.Player.ArtificialHealth;
-                var lvl = ev.Player.Level;
-                var energy = ev.Player.Energy;
-                var experience = ev.Player.Experience;
-
-                randomPlayer.SetRole(ev.Player.Role, SpawnReason.ForceClass, false);
-                this.CallDelayed(
-                    .2f,
-                    () =>
-                    {
-                        randomPlayer.Health = hp;
-                        randomPlayer.ArtificialHealth = ahp;
-                        randomPlayer.Level = lvl;
-                        randomPlayer.Energy = energy;
-                        randomPlayer.Experience = experience;
-                    },
-                    "LateSync");
-
-                this.CallDelayed(.5f, () => randomPlayer.Position = position, "LateTeleport");
-
-                ev.Player.SetRole(RoleType.Spectator, SpawnReason.None);
-            }
+            RespawnSCP(ev.Player);
         }
 
         private void Player_Verified(Exiled.Events.EventArgs.VerifiedEventArgs ev)
