@@ -16,13 +16,9 @@ using Mistaken.API.Extensions;
 namespace Mistaken.BetterSCP
 {
     [CommandSystem.CommandHandler(typeof(CommandSystem.ClientCommandHandler))]
-    internal class SwapSCPCommand : IBetterCommand, IPermissionLocked
+    internal class SwapSCPCommand : IBetterCommand
     {
-        public string Permission => "swapscp";
-
         public override string Description => "Pozwala zmienić SCP";
-
-        public string PluginName => PluginHandler.Instance.Name;
 
         public override string Command => "swapscp";
 
@@ -36,9 +32,10 @@ namespace Mistaken.BetterSCP
         public override string[] Execute(ICommandSender sender, string[] args, out bool success)
         {
             success = false;
+            var player = sender.GetPlayer();
+
             if (args.Length == 0)
                 return new string[] { this.GetUsage() };
-            var player = sender.GetPlayer();
             if (player.Team != Team.SCP)
                 return new string[] { "Nie możesz zmienić SCP nie będąc SCP" };
             if (player.Role == RoleType.Scp0492)
