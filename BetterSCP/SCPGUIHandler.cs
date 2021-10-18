@@ -393,6 +393,12 @@ namespace Mistaken.BetterSCP
             PseudoGUIHandler.Ignore(p);
             for (int i = 0; i < 30; i++)
             {
+                if (!Round.IsStarted)
+                {
+                    PseudoGUIHandler.StopIgnore(p);
+                    yield break;
+                }
+
                 this.GetSCPS(p);
                 yield return Timing.WaitForSeconds(1);
             }
@@ -402,6 +408,8 @@ namespace Mistaken.BetterSCP
 
         private void GetSCPS(Player p)
         {
+            if (!p.IsConnected)
+                return;
             DateTime start = DateTime.Now;
             List<string> message = NorthwoodLib.Pools.ListPool<string>.Shared.Rent();
             message.Add("<br><br><br>");
