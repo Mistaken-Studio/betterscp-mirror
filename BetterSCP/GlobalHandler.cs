@@ -139,6 +139,9 @@ namespace Mistaken.BetterSCP
 
         private void Player_Destroying(Exiled.Events.EventArgs.DestroyingEventArgs ev)
         {
+            if (!Round.IsStarted)
+                return;
+
             if (!ev.Player.IsScp)
                 return;
 
