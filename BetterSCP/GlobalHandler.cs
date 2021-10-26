@@ -142,7 +142,7 @@ namespace Mistaken.BetterSCP
             if (!Round.IsStarted)
                 return;
 
-            if (!ev.Player.IsScp)
+            if (!ev.Player.IsScp || ev.Player.Role == RoleType.Scp0492)
                 return;
 
             RespawnSCP(ev.Player);
