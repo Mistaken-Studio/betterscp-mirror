@@ -14,6 +14,7 @@ using Mistaken.API.Components;
 using Mistaken.API.Diagnostics;
 using Mistaken.API.Extensions;
 using Mistaken.API.GUI;
+using Mistaken.RoundLogger;
 using PlayableScps;
 using UnityEngine;
 
@@ -29,40 +30,55 @@ namespace Mistaken.BetterSCP
         /// <param name="player">Player to change.</param>
         public static void RespawnSCP(Player player)
         {
+            RLogger.Log("SCP RESPAWN", "SCP", "Respawning SCP");
+
             var spectators = RealPlayers.Get(Team.RIP).ToArray();
 
             if (spectators.Length == 0)
             {
                 player.IsGodModeEnabled = false;
+                MapPlus.Broadcast("RESPAWN", 10, $"SCP player Change, ({player.Id}) {player.Nickname} -> Nobody", Broadcast.BroadcastFlags.AdminChat);
                 player.Kill(DamageTypes.Wall);
             }
             else
             {
                 var randomPlayer = spectators[UnityEngine.Random.Range(0, spectators.Length)];
 
-                var position = player.Position;
+                var position = player.Position + (Vector3.up * 0.5f);
                 var hp = player.Health;
                 var ahp = player.ArtificialHealth;
                 var lvl = player.Level;
                 var energy = player.Energy;
                 var experience = player.Experience;
+                Camera079 camera = player.Camera;
 
+                bool scp079 = player.Role == RoleType.Scp079;
                 randomPlayer.SetRole(player.Role, SpawnReason.ForceClass, false);
                 Module.CallSafeDelayed(
                     .2f,
                     () =>
                     {
-                        randomPlayer.Health = hp;
-                        randomPlayer.ArtificialHealth = ahp;
-                        randomPlayer.Level = lvl;
-                        randomPlayer.Energy = energy;
-                        randomPlayer.Experience = experience;
+                        if (scp079)
+                        {
+                            randomPlayer.Level = lvl;
+                            randomPlayer.Energy = energy;
+                            randomPlayer.Experience = experience;
+                            if (player.Camera != null)
+                                randomPlayer.Camera = player.Camera;
+                        }
+                        else
+                        {
+                            randomPlayer.Health = hp;
+                            randomPlayer.ArtificialHealth = ahp;
+                        }
                     },
                     "GlobalHandler.LateSync");
 
                 Module.CallSafeDelayed(.5f, () => randomPlayer.Position = position, "GlobalHandler.LateTeleport");
 
                 player.SetRole(RoleType.Spectator, SpawnReason.None);
+                randomPlayer.Broadcast(10, $"Player {player.GetDisplayName()} left game so you were moved to replace him");
+                MapPlus.Broadcast("RESPAWN", 10, $"SCP player Change, ({player.Id}) {player.Nickname} -> ({randomPlayer.Id}) {randomPlayer.Nickname}", Broadcast.BroadcastFlags.AdminChat);
             }
         }
 
@@ -80,6 +96,8 @@ namespace Mistaken.BetterSCP
         {
             Exiled.Events.Handlers.Player.Verified += this.Handle<Exiled.Events.EventArgs.VerifiedEventArgs>((ev) => this.Player_Verified(ev));
             Exiled.Events.Handlers.Player.Destroying += this.Handle<Exiled.Events.EventArgs.DestroyingEventArgs>((ev) => this.Player_Destroying(ev));
+            Exiled.Events.Handlers.Scp106.Containing += this.Handle<Exiled.Events.EventArgs.ContainingEventArgs>((ev) => Scp106_Containing(ev));
+            Exiled.Events.Handlers.Server.RestartingRound += this.Handle(() => Server_RestartingRound(), "RoundRestart");
         }
 
         /// <inheritdoc/>
@@ -87,6 +105,8 @@ namespace Mistaken.BetterSCP
         {
             Exiled.Events.Handlers.Player.Verified -= this.Handle<Exiled.Events.EventArgs.VerifiedEventArgs>((ev) => this.Player_Verified(ev));
             Exiled.Events.Handlers.Player.Destroying -= this.Handle<Exiled.Events.EventArgs.DestroyingEventArgs>((ev) => this.Player_Destroying(ev));
+            Exiled.Events.Handlers.Scp106.Containing -= this.Handle<Exiled.Events.EventArgs.ContainingEventArgs>((ev) => Scp106_Containing(ev));
+            Exiled.Events.Handlers.Server.RestartingRound -= this.Handle(() => Server_RestartingRound(), "RoundRestart");
         }
 
         private static readonly Dictionary<string, DateTime> LastSeeTime = new Dictionary<string, DateTime>();
@@ -137,12 +157,22 @@ namespace Mistaken.BetterSCP
             Exiled.API.Features.Log.Debug($"[Panic] End {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
         };
 
+        private static bool Change106 = true;
+
+        private void Scp106_Containing(Exiled.Events.EventArgs.ContainingEventArgs ev)
+        {
+            Change106 = false;
+        }
+
         private void Player_Destroying(Exiled.Events.EventArgs.DestroyingEventArgs ev)
         {
             if (!Round.IsStarted)
                 return;
 
             if (!ev.Player.IsScp || ev.Player.Role == RoleType.Scp0492)
+                return;
+
+            if (!Change106 && ev.Player.Role == RoleType.Scp106)
                 return;
 
             RespawnSCP(ev.Player);
@@ -152,6 +182,11 @@ namespace Mistaken.BetterSCP
         {
             // Panic
             InRange.Spawn(ev.Player.CameraTransform, Vector3.forward * 10f, new Vector3(10, 5, 20), OnEnterVision(ev.Player));
+        }
+
+        private void Server_RestartingRound()
+        {
+            Change106 = true;
         }
     }
 }
