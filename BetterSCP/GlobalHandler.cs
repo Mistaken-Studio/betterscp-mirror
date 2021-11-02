@@ -32,7 +32,7 @@ namespace Mistaken.BetterSCP
         {
             RLogger.Log("SCP RESPAWN", "SCP", "Respawning SCP");
 
-            var spectators = RealPlayers.Get(Team.RIP).ToArray();
+            var spectators = RealPlayers.Get(Team.RIP).Where(x => !x.IsOverwatchEnabled).ToArray();
 
             if (spectators.Length == 0)
             {
@@ -94,19 +94,19 @@ namespace Mistaken.BetterSCP
         /// <inheritdoc/>
         public override void OnEnable()
         {
-            Exiled.Events.Handlers.Player.Verified += this.Handle<Exiled.Events.EventArgs.VerifiedEventArgs>((ev) => this.Player_Verified(ev));
-            Exiled.Events.Handlers.Player.Destroying += this.Handle<Exiled.Events.EventArgs.DestroyingEventArgs>((ev) => this.Player_Destroying(ev));
-            Exiled.Events.Handlers.Scp106.Containing += this.Handle<Exiled.Events.EventArgs.ContainingEventArgs>((ev) => Scp106_Containing(ev));
-            Exiled.Events.Handlers.Server.RestartingRound += this.Handle(() => Server_RestartingRound(), "RoundRestart");
+            Exiled.Events.Handlers.Player.Verified += this.Player_Verified;
+            Exiled.Events.Handlers.Player.Destroying += this.Player_Destroying;
+            Exiled.Events.Handlers.Scp106.Containing += this.Scp106_Containing;
+            Exiled.Events.Handlers.Server.RestartingRound += this.Server_RestartingRound;
         }
 
         /// <inheritdoc/>
         public override void OnDisable()
         {
-            Exiled.Events.Handlers.Player.Verified -= this.Handle<Exiled.Events.EventArgs.VerifiedEventArgs>((ev) => this.Player_Verified(ev));
-            Exiled.Events.Handlers.Player.Destroying -= this.Handle<Exiled.Events.EventArgs.DestroyingEventArgs>((ev) => this.Player_Destroying(ev));
-            Exiled.Events.Handlers.Scp106.Containing -= this.Handle<Exiled.Events.EventArgs.ContainingEventArgs>((ev) => Scp106_Containing(ev));
-            Exiled.Events.Handlers.Server.RestartingRound -= this.Handle(() => Server_RestartingRound(), "RoundRestart");
+            Exiled.Events.Handlers.Player.Verified -= this.Player_Verified;
+            Exiled.Events.Handlers.Player.Destroying -= this.Player_Destroying;
+            Exiled.Events.Handlers.Scp106.Containing -= this.Scp106_Containing;
+            Exiled.Events.Handlers.Server.RestartingRound -= this.Server_RestartingRound;
         }
 
         private static readonly Dictionary<string, DateTime> LastSeeTime = new Dictionary<string, DateTime>();
@@ -157,11 +157,11 @@ namespace Mistaken.BetterSCP
             Exiled.API.Features.Log.Debug($"[Panic] End {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
         };
 
-        private static bool Change106 = true;
+        private static bool change106 = true;
 
         private void Scp106_Containing(Exiled.Events.EventArgs.ContainingEventArgs ev)
         {
-            Change106 = false;
+            change106 = false;
         }
 
         private void Player_Destroying(Exiled.Events.EventArgs.DestroyingEventArgs ev)
@@ -172,7 +172,7 @@ namespace Mistaken.BetterSCP
             if (!ev.Player.IsScp || ev.Player.Role == RoleType.Scp0492)
                 return;
 
-            if (!Change106 && ev.Player.Role == RoleType.Scp106)
+            if (!change106 && ev.Player.Role == RoleType.Scp106)
                 return;
 
             RespawnSCP(ev.Player);
@@ -186,7 +186,7 @@ namespace Mistaken.BetterSCP
 
         private void Server_RestartingRound()
         {
-            Change106 = true;
+            change106 = true;
         }
     }
 }

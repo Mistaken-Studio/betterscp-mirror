@@ -41,14 +41,14 @@ namespace Mistaken.BetterSCP
         /// <inheritdoc/>
         public override void OnEnable()
         {
-            Exiled.Events.Handlers.Player.Hurting += this.Handle<Exiled.Events.EventArgs.HurtingEventArgs>((ev) => this.Player_Hurting(ev));
-            Exiled.Events.Handlers.Player.ChangingRole += this.Handle<Exiled.Events.EventArgs.ChangingRoleEventArgs>((ev) => this.Player_ChangingRole(ev));
-            Exiled.Events.Handlers.Server.WaitingForPlayers += this.Handle(() => this.Server_WaitingForPlayers(), "WaitingForPlayers");
-            Exiled.Events.Handlers.Server.RoundStarted += this.Handle(() => this.Server_RoundStarted(), "RoundStarted");
-            Exiled.Events.Handlers.Scp079.GainingLevel += this.Handle<Exiled.Events.EventArgs.GainingLevelEventArgs>((ev) => this.Scp079_GainingLevel(ev));
-            Exiled.Events.Handlers.Scp049.FinishingRecall += this.Handle<Exiled.Events.EventArgs.FinishingRecallEventArgs>((ev) => this.Scp049_FinishingRecall(ev));
-            Exiled.Events.Handlers.Server.RespawningTeam += this.Handle<Exiled.Events.EventArgs.RespawningTeamEventArgs>((ev) => this.Server_RespawningTeam(ev));
-            Exiled.Events.Handlers.Player.Dying += this.Handle<Exiled.Events.EventArgs.DyingEventArgs>((ev) => this.Player_Dying(ev));
+            Exiled.Events.Handlers.Player.Hurting += this.Player_Hurting;
+            Exiled.Events.Handlers.Player.ChangingRole += this.Player_ChangingRole;
+            Exiled.Events.Handlers.Server.WaitingForPlayers += this.Server_WaitingForPlayers;
+            Exiled.Events.Handlers.Server.RoundStarted += this.Server_RoundStarted;
+            Exiled.Events.Handlers.Scp079.GainingLevel += this.Scp079_GainingLevel;
+            Exiled.Events.Handlers.Scp049.FinishingRecall += this.Scp049_FinishingRecall;
+            Exiled.Events.Handlers.Server.RespawningTeam += this.Server_RespawningTeam;
+            Exiled.Events.Handlers.Player.Dying += this.Player_Dying;
 
             UnitNamingManager.RolesWithEnforcedDefaultName[RoleType.Scp049] = SpawnableTeamType.NineTailedFox;
             UnitNamingManager.RolesWithEnforcedDefaultName[RoleType.Scp0492] = SpawnableTeamType.NineTailedFox;
@@ -63,14 +63,14 @@ namespace Mistaken.BetterSCP
         /// <inheritdoc/>
         public override void OnDisable()
         {
-            Exiled.Events.Handlers.Player.Hurting -= this.Handle<Exiled.Events.EventArgs.HurtingEventArgs>((ev) => this.Player_Hurting(ev));
-            Exiled.Events.Handlers.Player.ChangingRole -= this.Handle<Exiled.Events.EventArgs.ChangingRoleEventArgs>((ev) => this.Player_ChangingRole(ev));
-            Exiled.Events.Handlers.Server.WaitingForPlayers -= this.Handle(() => this.Server_WaitingForPlayers(), "WaitingForPlayers");
-            Exiled.Events.Handlers.Server.RoundStarted -= this.Handle(() => this.Server_RoundStarted(), "RoundStarted");
-            Exiled.Events.Handlers.Scp079.GainingLevel -= this.Handle<Exiled.Events.EventArgs.GainingLevelEventArgs>((ev) => this.Scp079_GainingLevel(ev));
-            Exiled.Events.Handlers.Scp049.FinishingRecall -= this.Handle<Exiled.Events.EventArgs.FinishingRecallEventArgs>((ev) => this.Scp049_FinishingRecall(ev));
-            Exiled.Events.Handlers.Server.RespawningTeam -= this.Handle<Exiled.Events.EventArgs.RespawningTeamEventArgs>((ev) => this.Server_RespawningTeam(ev));
-            Exiled.Events.Handlers.Player.Dying -= this.Handle<Exiled.Events.EventArgs.DyingEventArgs>((ev) => this.Player_Dying(ev));
+            Exiled.Events.Handlers.Player.Hurting -= this.Player_Hurting;
+            Exiled.Events.Handlers.Player.ChangingRole -= this.Player_ChangingRole;
+            Exiled.Events.Handlers.Server.WaitingForPlayers -= this.Server_WaitingForPlayers;
+            Exiled.Events.Handlers.Server.RoundStarted -= this.Server_RoundStarted;
+            Exiled.Events.Handlers.Scp079.GainingLevel -= this.Scp079_GainingLevel;
+            Exiled.Events.Handlers.Scp049.FinishingRecall -= this.Scp049_FinishingRecall;
+            Exiled.Events.Handlers.Server.RespawningTeam -= this.Server_RespawningTeam;
+            Exiled.Events.Handlers.Player.Dying -= this.Player_Dying;
 
             UnitNamingManager.RolesWithEnforcedDefaultName.Remove(RoleType.Scp049);
             UnitNamingManager.RolesWithEnforcedDefaultName.Remove(RoleType.Scp0492);
