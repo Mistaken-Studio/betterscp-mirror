@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="PluginHandler.cs" company="Mistaken">
 // Copyright (c) Mistaken. All rights reserved.
 // </copyright>
@@ -19,7 +19,7 @@ namespace Mistaken.BetterSCP
         public override string Author => "Mistaken Devs";
 
         /// <inheritdoc/>
-        public override string Name => "Better SCP";
+        public override string Name => "BetterSCP";
 
         /// <inheritdoc/>
         public override string Prefix => "MBSCP";
