@@ -147,6 +147,11 @@ namespace Mistaken.BetterSCP
                 }
 
                 player.EnableEffect<CustomPlayerEffects.Invigorated>(5, true);
+
+                player.SetSessionVar(SessionVarType.IGNORE_SCP207_DAMAGE, true);
+                player.EnableEffect<CustomPlayerEffects.Scp207>(5, true);
+                Module.CallSafeDelayed(5, () => player.SetSessionVar(SessionVarType.IGNORE_SCP207_DAMAGE, false), "Disable_IGNORE_SCP207_DAMAGE");
+
                 if (!player.GetEffectActive<CustomPlayerEffects.Panic>())
                     player.EnableEffect<CustomPlayerEffects.Panic>(15, true);
                 player.SetGUI("panic", PseudoGUIPosition.MIDDLE, "Zaczynasz <color=yellow>panikować</color>", 3);
