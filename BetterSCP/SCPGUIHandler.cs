@@ -29,6 +29,16 @@ namespace Mistaken.BetterSCP
         /// </summary>
         public static readonly Dictionary<RoleType, string> SCPMessages = new Dictionary<RoleType, string>();
 
+        /// <summary>
+        /// Resyncs all unit names.
+        /// </summary>
+        public static void ResyncAllUnits()
+        {
+            foreach (var item in RealPlayers.List.Where(x => x.IsAlive && !x.IsScp))
+                ResyncUnitName(item);
+            SyncSCP(true);
+        }
+
         /// <inheritdoc cref="Module.Module(Exiled.API.Interfaces.IPlugin{Exiled.API.Interfaces.IConfig})"/>
         public SCPGUIHandler(PluginHandler p)
             : base(p)
@@ -82,7 +92,7 @@ namespace Mistaken.BetterSCP
             UnitNamingManager.RolesWithEnforcedDefaultName.Remove(RoleType.Scp93989);
         }
 
-        internal void ClearUnitNames(Player player)
+        internal static void ClearUnitNames(Player player)
         {
             if (player.Connection == null)
                 return;
@@ -95,7 +105,7 @@ namespace Mistaken.BetterSCP
             });
         }
 
-        internal void SendFakeUnitName(Player player, string name)
+        internal static void SendFakeUnitName(Player player, string name)
         {
             if (player.Connection == null)
                 return;
@@ -110,7 +120,7 @@ namespace Mistaken.BetterSCP
             });
         }
 
-        internal void ResyncUnitName(Player player)
+        internal static void ResyncUnitName(Player player)
         {
             if (player.Connection == null)
                 return;
@@ -132,31 +142,165 @@ namespace Mistaken.BetterSCP
         }
 
         private static readonly Dictionary<Player, DateTime> SpawnTimes = new Dictionary<Player, DateTime>();
-        private bool blockUpdate = false;
-        private Dictionary<Player, string> cache = new Dictionary<Player, string>();
+        private static readonly Dictionary<Player, string> Cache = new Dictionary<Player, string>();
+        private static bool blockUpdate = false;
+
+        private static string GetColorByHP(Player player)
+        {
+            if (player.MaxHealth == 0)
+                return "blue";
+            int health = (int)Math.Round((player.Health / player.MaxHealth) * 100);
+            if (health > 80)
+                return "green";
+            if (health > 60)
+                return "#44693a";
+            if (health > 40)
+                return "yellow";
+            if (health > 20)
+                return "orange";
+            return "red";
+        }
+
+        private static string GetColorByLevel(Player player)
+        {
+            switch (player.Level)
+            {
+                case 0:
+                    return "red";
+                case 1:
+                    return "orange";
+                case 2:
+                    return "yellow";
+                case 3:
+                    return "#44693a";
+                case 4:
+                    return "green";
+                default:
+                    return "blue";
+            }
+        }
+
+        private static string GetColorByAmount(int number)
+        {
+            if (number > 3)
+                return "green";
+            if (number > 0)
+                return "orange";
+            return "red";
+        }
+
+        private static void SyncSCP(bool forceUpdate = false)
+        {
+            var players = RealPlayers.Get(Team.SCP);
+            List<string> units = new List<string>();
+            int zombie = 0;
+            bool scp049 = false;
+            bool changed = forceUpdate;
+            string unit;
+            foreach (var player in players.OrderByDescending(x => x.Role))
+            {
+                switch (player.Role)
+                {
+                    case RoleType.Scp0492:
+                        zombie++;
+                        break;
+                    case RoleType.Scp049:
+                        scp049 = true;
+                        unit = $"<color={GetColorByHP(player)}>SCP-049</color>";
+                        units.Add(unit);
+                        if (Cache.ContainsKey(player) && Cache[player].Equals(unit))
+                            continue;
+                        Cache[player] = unit;
+                        changed = true;
+                        break;
+                    case RoleType.Scp079:
+                        unit = $"<color={GetColorByLevel(player)}>SCP-079</color>";
+                        units.Add(unit);
+                        if (Cache.ContainsKey(player) && Cache[player].Equals(unit))
+                            continue;
+                        Cache[player] = unit;
+                        changed = true;
+                        break;
+                    case RoleType.Scp096:
+                        unit = $"<color={GetColorByHP(player)}>SCP-096</color>";
+                        units.Add(unit);
+                        if (Cache.ContainsKey(player) && Cache[player].Equals(unit))
+                            continue;
+                        Cache[player] = unit;
+                        changed = true;
+                        break;
+                    case RoleType.Scp106:
+                        unit = $"<color={GetColorByHP(player)}>SCP-106</color>";
+                        units.Add(unit);
+                        if (Cache.ContainsKey(player) && Cache[player].Equals(unit))
+                            continue;
+                        Cache[player] = unit;
+                        changed = true;
+                        break;
+                    case RoleType.Scp173:
+                        unit = $"<color={GetColorByHP(player)}>SCP-173</color>";
+                        units.Add(unit);
+                        if (Cache.ContainsKey(player) && Cache[player].Equals(unit))
+                            continue;
+                        Cache[player] = unit;
+                        changed = true;
+                        break;
+                    case RoleType.Scp93953:
+                        unit = $"<color={GetColorByHP(player)}>SCP-939-53</color>";
+                        units.Add(unit);
+                        if (Cache.ContainsKey(player) && Cache[player].Equals(unit))
+                            continue;
+                        Cache[player] = unit;
+                        changed = true;
+                        break;
+                    case RoleType.Scp93989:
+                        unit = $"<color={GetColorByHP(player)}>SCP-939-89</color>";
+                        units.Add(unit);
+                        if (Cache.ContainsKey(player) && Cache[player].Equals(unit))
+                            continue;
+                        Cache[player] = unit;
+                        changed = true;
+                        break;
+                }
+            }
+
+            if (scp049 || zombie > 0)
+                units.Add($"<color={GetColorByAmount(zombie)}>SCP-049-02 | {zombie}</color>");
+            foreach (var player in players)
+            {
+                ClearUnitNames(player);
+                foreach (var item in units)
+                    SendFakeUnitName(player, item);
+
+                player.SendFakeSyncVar(Server.Host.ReferenceHub.networkIdentity, typeof(CharacterClassManager), nameof(CharacterClassManager.NetworkCurClass), (sbyte)RoleType.NtfCaptain);
+                player.SendFakeSyncVar(Server.Host.ReferenceHub.networkIdentity, typeof(CharacterClassManager), nameof(CharacterClassManager.NetworkCurClass), (sbyte)RoleType.Spectator);
+            }
+
+            blockUpdate = false;
+        }
 
         private void Player_Dying(Exiled.Events.EventArgs.DyingEventArgs ev)
         {
             if (ev.Target.IsScp)
-                this.ResyncUnitName(ev.Target);
+                ResyncUnitName(ev.Target);
         }
 
         private void Server_RespawningTeam(Exiled.Events.EventArgs.RespawningTeamEventArgs ev)
         {
-            this.blockUpdate = true;
-            this.CallDelayed(2, () => this.SyncSCP(true));
+            blockUpdate = true;
+            this.CallDelayed(2, () => SyncSCP(true));
         }
 
         private void Scp049_FinishingRecall(Exiled.Events.EventArgs.FinishingRecallEventArgs ev)
         {
-            this.blockUpdate = true;
-            this.CallDelayed(1, () => this.SyncSCP(true));
+            blockUpdate = true;
+            this.CallDelayed(1, () => SyncSCP(true));
         }
 
         private void Server_RoundStarted()
         {
-            this.blockUpdate = true;
-            this.CallDelayed(2, () => this.SyncSCP(true));
+            blockUpdate = true;
+            this.CallDelayed(2, () => SyncSCP(true));
             this.CallDelayed(
                 5,
                 () =>
@@ -182,8 +326,8 @@ namespace Mistaken.BetterSCP
         private void Server_WaitingForPlayers()
         {
             SwapSCPCommand.AlreadyChanged.Clear();
-            this.cache.Clear();
-            this.blockUpdate = false;
+            Cache.Clear();
+            blockUpdate = false;
         }
 
         private void Player_ChangingRole(Exiled.Events.EventArgs.ChangingRoleEventArgs ev)
@@ -200,10 +344,10 @@ namespace Mistaken.BetterSCP
                     .2f,
                     () =>
                     {
-                        this.SyncSCP(true);
+                        SyncSCP(true);
 
                         // ClearUnitNames(ev.Player);
-                        this.ResyncUnitName(ev.Player);
+                        ResyncUnitName(ev.Player);
                     });
             }
             else if (ev.NewRole.GetSide() == Side.Scp)
@@ -220,156 +364,19 @@ namespace Mistaken.BetterSCP
                                     item.SendFakeSyncVar(ev.Player.Connection.identity, typeof(CharacterClassManager), nameof(CharacterClassManager.NetworkCurSpawnableTeamType), 0);
                             },
                             "LateForceNoBaseGameHierarchy");
-                        this.SyncSCP(true);
+                        SyncSCP(true);
                     });
             }
-        }
-
-        private string GetColorByHP(Player player)
-        {
-            if (player.MaxHealth == 0)
-                return "blue";
-            int health = (int)Math.Round((player.Health / player.MaxHealth) * 100);
-            if (health > 80)
-                return "green";
-            if (health > 60)
-                return "#44693a";
-            if (health > 40)
-                return "yellow";
-            if (health > 20)
-                return "orange";
-            return "red";
-        }
-
-        private string GetColorByLevel(Player player)
-        {
-            switch (player.Level)
-            {
-                case 0:
-                    return "red";
-                case 1:
-                    return "orange";
-                case 2:
-                    return "yellow";
-                case 3:
-                    return "#44693a";
-                case 4:
-                    return "green";
-                default:
-                    return "blue";
-            }
-        }
-
-        private string GetColorByAmount(int number)
-        {
-            if (number > 3)
-                return "green";
-            if (number > 0)
-                return "orange";
-            return "red";
-        }
-
-        private void SyncSCP(bool forceUpdate = false)
-        {
-            var players = RealPlayers.Get(Team.SCP);
-            List<string> units = new List<string>();
-            int zombie = 0;
-            bool scp049 = false;
-            bool changed = forceUpdate;
-            string unit;
-            foreach (var player in players.OrderByDescending(x => x.Role))
-            {
-                switch (player.Role)
-                {
-                    case RoleType.Scp0492:
-                        zombie++;
-                        break;
-                    case RoleType.Scp049:
-                        scp049 = true;
-                        unit = $"<color={this.GetColorByHP(player)}>SCP-049</color>";
-                        units.Add(unit);
-                        if (this.cache.ContainsKey(player) && this.cache[player].Equals(unit))
-                            continue;
-                        this.cache[player] = unit;
-                        changed = true;
-                        break;
-                    case RoleType.Scp079:
-                        unit = $"<color={this.GetColorByLevel(player)}>SCP-079</color>";
-                        units.Add(unit);
-                        if (this.cache.ContainsKey(player) && this.cache[player].Equals(unit))
-                            continue;
-                        this.cache[player] = unit;
-                        changed = true;
-                        break;
-                    case RoleType.Scp096:
-                        unit = $"<color={this.GetColorByHP(player)}>SCP-096</color>";
-                        units.Add(unit);
-                        if (this.cache.ContainsKey(player) && this.cache[player].Equals(unit))
-                            continue;
-                        this.cache[player] = unit;
-                        changed = true;
-                        break;
-                    case RoleType.Scp106:
-                        unit = $"<color={this.GetColorByHP(player)}>SCP-106</color>";
-                        units.Add(unit);
-                        if (this.cache.ContainsKey(player) && this.cache[player].Equals(unit))
-                            continue;
-                        this.cache[player] = unit;
-                        changed = true;
-                        break;
-                    case RoleType.Scp173:
-                        unit = $"<color={this.GetColorByHP(player)}>SCP-173</color>";
-                        units.Add(unit);
-                        if (this.cache.ContainsKey(player) && this.cache[player].Equals(unit))
-                            continue;
-                        this.cache[player] = unit;
-                        changed = true;
-                        break;
-                    case RoleType.Scp93953:
-                        unit = $"<color={this.GetColorByHP(player)}>SCP-939-53</color>";
-                        units.Add(unit);
-                        if (this.cache.ContainsKey(player) && this.cache[player].Equals(unit))
-                            continue;
-                        this.cache[player] = unit;
-                        changed = true;
-                        break;
-                    case RoleType.Scp93989:
-                        unit = $"<color={this.GetColorByHP(player)}>SCP-939-89</color>";
-                        units.Add(unit);
-                        if (this.cache.ContainsKey(player) && this.cache[player].Equals(unit))
-                            continue;
-                        this.cache[player] = unit;
-                        changed = true;
-                        break;
-                }
-            }
-
-            if (scp049 || zombie > 0)
-                units.Add($"<color={this.GetColorByAmount(zombie)}>SCP-049-02 | {zombie}</color>");
-            foreach (var player in players)
-            {
-                this.ClearUnitNames(player);
-                foreach (var item in units)
-                    this.SendFakeUnitName(player, item);
-
-                player.SendFakeSyncVar(Server.Host.ReferenceHub.networkIdentity, typeof(CharacterClassManager), nameof(CharacterClassManager.NetworkCurClass), (sbyte)RoleType.NtfCaptain);
-                player.SendFakeSyncVar(Server.Host.ReferenceHub.networkIdentity, typeof(CharacterClassManager), nameof(CharacterClassManager.NetworkCurClass), (sbyte)RoleType.Spectator);
-            }
-
-            this.blockUpdate = false;
         }
 
         private void Player_Hurting(Exiled.Events.EventArgs.HurtingEventArgs ev)
         {
             if (!ev.IsAllowed)
                 return;
-            if (ev.Target.Team == Team.SCP && !this.blockUpdate)
+            if (ev.Target.Team == Team.SCP && !blockUpdate)
             {
-                this.blockUpdate = true;
-                this.CallDelayed(1, () =>
-                {
-                    this.SyncSCP(false);
-                });
+                blockUpdate = true;
+                this.CallDelayed(1, () => SyncSCP(false));
             }
         }
 
@@ -377,10 +384,10 @@ namespace Mistaken.BetterSCP
         {
             if (!ev.IsAllowed)
                 return;
-            if (!this.blockUpdate)
+            if (!blockUpdate)
             {
-                this.blockUpdate = true;
-                this.SyncSCP(false);
+                blockUpdate = true;
+                SyncSCP(false);
             }
         }
 

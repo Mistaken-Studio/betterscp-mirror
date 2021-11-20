@@ -34,7 +34,7 @@ namespace Mistaken.BetterSCP
             success = false;
             var player = sender.GetPlayer();
 
-            if (!player.GetSessionVar<bool>("SWAPSCP_OVERRIDE"))
+            if (!player.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
                 return new string[] { "<color=red>Z przyczyn technicznych komenda jest obecnie wyłączona i mają do niej dostęp tylko Vipy</color>", "Kiedy problem zostanie rozwiązany komenda znowu będzie działać jak dawiej", "<color=grey>Jak kogoś interesuje to problem jest w tym że normalnie jest cooldown raz na 3 rundy jako SCP ale poniważ serwer restartuje się co rundę to tego cooldownu nie ma, a Vipy normalnie nie mają tego cooldownu więc dla nich komenda może dalej działać</color>" };
 
             if (args.Length == 0)
@@ -52,7 +52,7 @@ namespace Mistaken.BetterSCP
                     player.Role = requester.Role;
                     requester.Role = data.Value.Value;
                     AlreadyChanged.Add(requester.Id);
-                    if (!requester.GetSessionVar<bool>("SWAPSCP_OVERRIDE"))
+                    if (!requester.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
                         SwapCooldown.Add(requester.UserId, RoundsCooldown);
                     this.roleRequests.Remove(data);
                     return new string[] { "Ok" };
@@ -141,7 +141,7 @@ namespace Mistaken.BetterSCP
             else
             {
                 AlreadyChanged.Add(player.Id);
-                if (!player.GetSessionVar<bool>("SWAPSCP_OVERRIDE"))
+                if (!player.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
                     SwapCooldown.Add(player.UserId, RoundsCooldown);
                 player.Role = role;
                 return new string[] { "Done" };
