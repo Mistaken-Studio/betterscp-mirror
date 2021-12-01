@@ -38,7 +38,7 @@ namespace Mistaken.BetterSCP
             {
                 player.IsGodModeEnabled = false;
                 MapPlus.Broadcast("RESPAWN", 10, $"SCP player Change, ({player.Id}) {player.Nickname} -> Nobody", Broadcast.BroadcastFlags.AdminChat);
-                player.Kill(DamageTypes.Wall);
+                player.Kill("Wall");
             }
             else
             {
@@ -152,8 +152,8 @@ namespace Mistaken.BetterSCP
                 player.EnableEffect<CustomPlayerEffects.Scp207>(5, true);
                 Module.CallSafeDelayed(5, () => player.SetSessionVariable(SessionVarType.IGNORE_SCP207_DAMAGE, false), "Disable_IGNORE_SCP207_DAMAGE");
 
-                if (!player.GetEffectActive<CustomPlayerEffects.Panic>())
-                    player.EnableEffect<CustomPlayerEffects.Panic>(15, true);
+                /*if (!player.GetEffectActive<CustomPlayerEffects.Panic>())
+                    player.EnableEffect<CustomPlayerEffects.Panic>(15, true);*/
                 player.SetGUI("panic", PseudoGUIPosition.MIDDLE, "Zaczynasz <color=yellow>panikować</color>", 3);
                 LastSeeTime[player.UserId] = DateTime.Now;
                 Exiled.API.Features.Log.Debug($"[Panic] Activated {player.Nickname}", PluginHandler.Instance.Config.VerbouseOutput);
