@@ -148,9 +148,8 @@ namespace Mistaken.BetterSCP
 
                 player.EnableEffect<CustomPlayerEffects.Invigorated>(5, true);
 
-                player.SetSessionVariable(SessionVarType.IGNORE_SCP207_DAMAGE, true);
-                player.EnableEffect<CustomPlayerEffects.Scp207>(5, true);
-                Module.CallSafeDelayed(5, () => player.SetSessionVariable(SessionVarType.IGNORE_SCP207_DAMAGE, false), "Disable_IGNORE_SCP207_DAMAGE");
+                player.EnableEffect<CustomPlayerEffects.MovementBoost>(5, true);
+                player.ChangeEffectIntensity<CustomPlayerEffects.MovementBoost>(20);
 
                 /*if (!player.GetEffectActive<CustomPlayerEffects.Panic>())
                     player.EnableEffect<CustomPlayerEffects.Panic>(15, true);*/
