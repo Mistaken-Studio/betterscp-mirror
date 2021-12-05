@@ -185,7 +185,7 @@ namespace Mistaken.BetterSCP
         private void Player_Verified(Exiled.Events.EventArgs.VerifiedEventArgs ev)
         {
             // Panic
-            InRange.Spawn(ev.Player.CameraTransform, Vector3.forward * 10f, new Vector3(10, 5, 20), OnEnterVision(ev.Player));
+            // InRange.Spawn(ev.Player.CameraTransform, Vector3.forward * 10f, new Vector3(10, 5, 20), OnEnterVision(ev.Player));
         }
 
         private void Server_RestartingRound()
