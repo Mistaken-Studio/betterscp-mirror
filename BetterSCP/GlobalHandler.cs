@@ -38,7 +38,7 @@ namespace Mistaken.BetterSCP
             {
                 player.IsGodModeEnabled = false;
                 MapPlus.Broadcast("RESPAWN", 10, $"SCP player Change, ({player.Id}) {player.Nickname} -> Nobody", Broadcast.BroadcastFlags.AdminChat);
-                player.Kill("Wall");
+                player.Kill("Unknown cause of death", "TERMINATED SUCCESSFULLY");
             }
             else
             {
