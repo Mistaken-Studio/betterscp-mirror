@@ -34,9 +34,8 @@ namespace Mistaken.BetterSCP
             success = false;
             var player = sender.GetPlayer();
 
-            if (!player.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
-                return new string[] { "<color=red>Z przyczyn technicznych komenda jest obecnie wyłączona i mają do niej dostęp tylko Vipy</color>", "Kiedy problem zostanie rozwiązany komenda znowu będzie działać jak dawiej", "<color=grey>Jak kogoś interesuje to problem jest w tym że normalnie jest cooldown raz na 3 rundy jako SCP ale poniważ serwer restartuje się co rundę to tego cooldownu nie ma, a Vipy normalnie nie mają tego cooldownu więc dla nich komenda może dalej działać</color>" };
-
+            // if (!player.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
+            //     return new string[] { "<color=red>Z przyczyn technicznych komenda jest obecnie wyłączona i mają do niej dostęp tylko Vipy</color>", "Kiedy problem zostanie rozwiązany komenda znowu będzie działać jak dawiej", "<color=grey>Jak kogoś interesuje to problem jest w tym że normalnie jest cooldown raz na 3 rundy jako SCP ale poniważ serwer restartuje się co rundę to tego cooldownu nie ma, a Vipy normalnie nie mają tego cooldownu więc dla nich komenda może dalej działać</color>" };
             if (args.Length == 0)
                 return new string[] { this.GetUsage() };
             if (player.Team != Team.SCP)
