@@ -63,7 +63,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SCPGUIHandler.cs" />
     <Compile Include="SCPVoiceChatPatch.cs" />
-    <Compile Include="ChangeSCPCommand.cs" />
     <Compile Include="SwapSCPCommand.cs" />
     <Compile Include="Translation.cs" />
   </ItemGroup>
