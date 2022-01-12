@@ -42,7 +42,8 @@ namespace Mistaken.BetterSCP
                 return new string[] { "Nie możesz zmienić SCP nie będąc SCP" };
             if (player.Role == RoleType.Scp0492)
                 return new string[] { "Nie możesz zmienić SCP jako SCP 049-2" };
-            if (this.roleRequests.Any(i => i.Value.Key == player.Id))
+
+            /*if (this.roleRequests.Any(i => i.Value.Key == player.Id))
             {
                 var data = this.roleRequests.First(i => i.Value.Key == player.Id);
                 var requester = RealPlayers.Get(data.Key);
@@ -64,8 +65,9 @@ namespace Mistaken.BetterSCP
                 }
                 else
                     return new string[] { ".scpswap yes/no", $"'yes' aby zmienić SCP na {requester.Role}", $"'no' aby zostać jako {player.Role}" };
-            }
-            else if (Round.ElapsedTime.TotalSeconds > 30)
+            }*/
+
+            if (Round.ElapsedTime.TotalSeconds > 30)
                 return new string[] { "Za późno, możesz zmienić SCP tylko przez pierwsze 30 sekund rundy" };
 
             if (this.roleRequests.Any(i => i.Key == player.Id))
@@ -108,6 +110,34 @@ namespace Mistaken.BetterSCP
                 case "096":
                     role = RoleType.Scp096;
                     break;
+
+                case "yes":
+                case "no":
+                    if (this.roleRequests.Any(i => i.Value.Key == player.Id))
+                    {
+                        var data = this.roleRequests.First(i => i.Value.Key == player.Id);
+                        var requester = RealPlayers.Get(data.Key);
+                        if (args[0].ToLower() == "yes")
+                        {
+                            player.Role = requester.Role;
+                            requester.Role = data.Value.Value;
+                            AlreadyChanged.Add(requester.Id);
+                            if (!requester.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
+                                SwapCooldown.Add(requester.UserId, RoundsCooldown);
+                            this.roleRequests.Remove(data);
+                            return new string[] { "Ok" };
+                        }
+                        else if (args[0].ToLower() == "no")
+                        {
+                            requester.Broadcast("Swap SCP", 5, $"{player.Nickname} nie chce zamienić się SCP");
+                            this.roleRequests.Remove(data);
+                            return new string[] { "Ok" };
+                        }
+                        else
+                            return new string[] { ".scpswap yes/no", $"'yes' aby zmienić SCP na {requester.Role}", $"'no' aby zostać jako {player.Role}" };
+                    }
+
+                    break;
                 default:
                     return new string[] { "Nieznany SCP", this.GetUsage() };
             }
@@ -120,7 +150,29 @@ namespace Mistaken.BetterSCP
 
             if (RealPlayers.List.Any(p => p.Role == role))
             {
+                Player requester = null;
+
+                if (this.roleRequests.Any(i => i.Value.Key == player.Id))
+                {
+                    var request = this.roleRequests.First(i => i.Value.Key == player.Id);
+                    requester = RealPlayers.Get(request.Key);
+                }
+
                 var target = RealPlayers.List.First(p => p.Role == role);
+
+                if (requester == target)
+                {
+                    var playerRole = player.Role;
+                    player.Role = requester.Role;
+                    requester.Role = playerRole;
+                    AlreadyChanged.Add(requester.Id);
+                    if (!requester.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
+                        SwapCooldown.Add(requester.UserId, RoundsCooldown);
+                    this.roleRequests.Remove(this.roleRequests.First(i => i.Value.Key == player.Id));
+
+                    return new string[] { "Zamieniono SCP" };
+                }
+
                 var data = new KeyValuePair<int, KeyValuePair<int, RoleType>>(player.Id, new KeyValuePair<int, RoleType>(target.Id, role));
                 this.roleRequests.Add(data);
                 target.Broadcast("Swap SCP", 15, $"<size=50%>{player.Nickname} chce się z tobą zamienić SCP, jeżeli się zgodzisz to zostaniesz <b>{player.Role}</b>\nWpisz \".swapscp yes\" lub \".swapscp no\" w konsoli(~) aby się zamienić lub aby tego nie robić</size>");
@@ -143,6 +195,17 @@ namespace Mistaken.BetterSCP
                 if (!player.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
                     SwapCooldown.Add(player.UserId, RoundsCooldown);
                 player.Role = role;
+                if (this.roleRequests.Any(i => i.Value.Key == player.Id))
+                {
+                    var request = this.roleRequests.First(i => i.Value.Key == player.Id);
+                    var requester = RealPlayers.Get(request.Key);
+                    requester.Role = request.Value.Value;
+                    this.roleRequests.Remove(request);
+                    AlreadyChanged.Add(requester.Id);
+                    if (!requester.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
+                        SwapCooldown.Add(requester.UserId, RoundsCooldown);
+                }
+
                 return new string[] { "Done" };
             }
         }
