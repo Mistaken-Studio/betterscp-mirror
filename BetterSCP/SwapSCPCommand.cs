@@ -195,6 +195,17 @@ namespace Mistaken.BetterSCP
                 if (!player.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
                     SwapCooldown.Add(player.UserId, RoundsCooldown);
                 player.Role = role;
+                if (this.roleRequests.Any(i => i.Value.Key == player.Id))
+                {
+                    var request = this.roleRequests.First(i => i.Value.Key == player.Id);
+                    var requester = RealPlayers.Get(request.Key);
+                    requester.Role = request.Value.Value;
+                    this.roleRequests.Remove(request);
+                    AlreadyChanged.Add(requester.Id);
+                    if (!requester.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
+                        SwapCooldown.Add(requester.UserId, RoundsCooldown);
+                }
+
                 return new string[] { "Done" };
             }
         }
