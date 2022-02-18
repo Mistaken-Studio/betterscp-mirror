@@ -70,10 +70,10 @@ namespace Mistaken.BetterSCP
             if (Round.ElapsedTime.TotalSeconds > 30)
                 return new string[] { "Za późno, możesz zmienić SCP tylko przez pierwsze 30 sekund rundy" };
 
-            if (this.roleRequests.Any(i => i.Key == player.Id))
+            if (this.roleRequests.Any(i => i.Key == player))
                 return new string[] { "Już wysłałeś prośbę aby zamienić SCP" };
 
-            if (AlreadyChanged.Contains(player.Id))
+            if (AlreadyChanged.Contains(player))
                 return new string[] { "Możesz zmienić SCP tylko raz na rundę" };
 
             if (SwapCooldown.ContainsKey(player.UserId))
@@ -113,15 +113,15 @@ namespace Mistaken.BetterSCP
 
                 case "yes":
                 case "no":
-                    if (this.roleRequests.Any(i => i.Value.Key == player.Id))
+                    if (this.roleRequests.Any(i => i.Value.Key == player))
                     {
-                        var data = this.roleRequests.First(i => i.Value.Key == player.Id);
-                        var requester = RealPlayers.Get(data.Key);
+                        var data = this.roleRequests.First(i => i.Value.Key == player);
+                        var requester = data.Key;
                         if (args[0].ToLower() == "yes")
                         {
                             player.Role = requester.Role;
                             requester.Role = data.Value.Value;
-                            AlreadyChanged.Add(requester.Id);
+                            AlreadyChanged.Add(requester);
                             if (!requester.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
                                 SwapCooldown.Add(requester.UserId, RoundsCooldown);
                             this.roleRequests.Remove(data);
@@ -152,10 +152,10 @@ namespace Mistaken.BetterSCP
             {
                 Player requester = null;
 
-                if (this.roleRequests.Any(i => i.Value.Key == player.Id))
+                if (this.roleRequests.Any(i => i.Value.Key == player))
                 {
-                    var request = this.roleRequests.First(i => i.Value.Key == player.Id);
-                    requester = RealPlayers.Get(request.Key);
+                    var request = this.roleRequests.First(i => i.Value.Key == player);
+                    requester = request.Key;
                 }
 
                 var target = RealPlayers.List.First(p => p.Role == role);
@@ -165,15 +165,15 @@ namespace Mistaken.BetterSCP
                     var playerRole = player.Role;
                     player.Role = requester.Role;
                     requester.Role = playerRole;
-                    AlreadyChanged.Add(requester.Id);
+                    AlreadyChanged.Add(requester);
                     if (!requester.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
                         SwapCooldown.Add(requester.UserId, RoundsCooldown);
-                    this.roleRequests.Remove(this.roleRequests.First(i => i.Value.Key == player.Id));
+                    this.roleRequests.Remove(this.roleRequests.First(i => i.Value.Key == player));
 
                     return new string[] { "Zamieniono SCP" };
                 }
 
-                var data = new KeyValuePair<int, KeyValuePair<int, RoleType>>(player.Id, new KeyValuePair<int, RoleType>(target.Id, role));
+                var data = new KeyValuePair<Player, KeyValuePair<Player, RoleType>>(player, new KeyValuePair<Player, RoleType>(target, role));
                 this.roleRequests.Add(data);
                 target.Broadcast("Swap SCP", 15, $"<size=50%>{player.Nickname} chce się z tobą zamienić SCP, jeżeli się zgodzisz to zostaniesz <b>{player.Role}</b>\nWpisz \".swapscp yes\" lub \".swapscp no\" w konsoli(~) aby się zamienić lub aby tego nie robić</size>");
                 Module.CallSafeDelayed(
@@ -191,17 +191,17 @@ namespace Mistaken.BetterSCP
             }
             else
             {
-                AlreadyChanged.Add(player.Id);
+                AlreadyChanged.Add(player);
                 if (!player.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
                     SwapCooldown.Add(player.UserId, RoundsCooldown);
                 player.Role = role;
-                if (this.roleRequests.Any(i => i.Value.Key == player.Id))
+                if (this.roleRequests.Any(i => i.Value.Key == player))
                 {
-                    var request = this.roleRequests.First(i => i.Value.Key == player.Id);
-                    var requester = RealPlayers.Get(request.Key);
+                    var request = this.roleRequests.First(i => i.Value.Key == player);
+                    var requester = request.Key;
                     requester.Role = request.Value.Value;
                     this.roleRequests.Remove(request);
-                    AlreadyChanged.Add(requester.Id);
+                    AlreadyChanged.Add(requester);
                     if (!requester.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
                         SwapCooldown.Add(requester.UserId, RoundsCooldown);
                 }
@@ -211,10 +211,10 @@ namespace Mistaken.BetterSCP
         }
 
         internal static readonly Dictionary<string, uint> SwapCooldown = new Dictionary<string, uint>();
-        internal static readonly List<int> AlreadyChanged = new List<int>();
+        internal static readonly List<Player> AlreadyChanged = new List<Player>();
 
         private const int RoundsCooldown = 3;
 
-        private readonly List<KeyValuePair<int, KeyValuePair<int, RoleType>>> roleRequests = new List<KeyValuePair<int, KeyValuePair<int, RoleType>>>();
+        private readonly List<KeyValuePair<Player, KeyValuePair<Player, RoleType>>> roleRequests = new List<KeyValuePair<Player, KeyValuePair<Player, RoleType>>>();
     }
 }
