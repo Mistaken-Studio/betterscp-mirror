@@ -36,12 +36,14 @@ namespace Mistaken.BetterSCP
         public override void OnEnable()
         {
             Exiled.Events.Handlers.Player.Verified += this.Player_Verified;
+            Exiled.Events.Handlers.Player.VoiceChatting += this.Player_VoiceChatting;
         }
 
         /// <inheritdoc/>
         public override void OnDisable()
         {
             Exiled.Events.Handlers.Player.Verified -= this.Player_Verified;
+            Exiled.Events.Handlers.Player.VoiceChatting -= this.Player_VoiceChatting;
         }
 
         private static readonly Dictionary<string, DateTime> LastSeeTime = new Dictionary<string, DateTime>();
@@ -100,6 +102,29 @@ namespace Mistaken.BetterSCP
         {
             // Panic
             // InRange.Spawn(ev.Player.CameraTransform, Vector3.forward * 10f, new Vector3(10, 5, 20), OnEnterVision(ev.Player));
+        }
+
+        private void Player_VoiceChatting(Exiled.Events.EventArgs.VoiceChattingEventArgs ev)
+        {
+            if (ev.Player == null)
+                return;
+            if (!ev.Player.IsScp)
+                return;
+            if (PluginHandler.Instance.Config.AllowedSCPVCRoles.Contains(ev.Player.Role))
+            {
+                this.Log.Debug("[Mimic] Granted: Class", PluginHandler.Instance.Config.VerbouseOutput);
+                ev.DissonanceUserSetup.MimicAs939 = ev.IsVoiceChatting;
+            }
+            else if (ev.Player.TryGetSessionVariable("HUMAN_VC_ACCESS", out bool value) && value)
+            {
+                this.Log.Debug("[Mimic] Granted: Override", PluginHandler.Instance.Config.VerbouseOutput);
+                ev.DissonanceUserSetup.MimicAs939 = ev.IsVoiceChatting;
+            }
+            else
+            {
+                this.Log.Debug("[Mimic] Denied", PluginHandler.Instance.Config.VerbouseOutput);
+                ev.DissonanceUserSetup.MimicAs939 = false;
+            }
         }
     }
 }

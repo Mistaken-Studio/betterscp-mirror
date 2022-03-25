@@ -53,9 +53,8 @@ namespace Mistaken.BetterSCP
             Exiled.Events.Events.DisabledPatchesHashSet.Add(typeof(PlayableScps.Scp173).GetMethod(nameof(PlayableScps.Scp173.UpdateObservers), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance));
             Exiled.Events.Events.Instance.ReloadDisabledPatches();
 
-            this.harmony = new Harmony("mistaken.betterscp");
-            this.harmony.PatchAll();
-
+            // this.harmony = new Harmony("mistaken.betterscp");
+            // this.harmony.PatchAll();
             new GlobalHandler(this);
             new SCPGUIHandler(this);
 
@@ -72,9 +71,8 @@ namespace Mistaken.BetterSCP
             Exiled.Events.Events.DisabledPatchesHashSet.Remove(typeof(PlayableScps.Scp173).GetMethod(nameof(PlayableScps.Scp173.UpdateObservers), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance));
             Exiled.Events.Events.Instance.ReloadDisabledPatches();
 
-            this.harmony.UnpatchAll();
-            this.harmony = null;
-
+            // this.harmony.UnpatchAll();
+            // this.harmony = null;
             base.OnDisabled();
         }
 
