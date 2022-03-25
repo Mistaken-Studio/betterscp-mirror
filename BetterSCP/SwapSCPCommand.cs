@@ -38,7 +38,7 @@ namespace Mistaken.BetterSCP
             //     return new string[] { "<color=red>Z przyczyn technicznych komenda jest obecnie wyłączona i mają do niej dostęp tylko Vipy</color>", "Kiedy problem zostanie rozwiązany komenda znowu będzie działać jak dawiej", "<color=grey>Jak kogoś interesuje to problem jest w tym że normalnie jest cooldown raz na 3 rundy jako SCP ale poniważ serwer restartuje się co rundę to tego cooldownu nie ma, a Vipy normalnie nie mają tego cooldownu więc dla nich komenda może dalej działać</color>" };
             if (args.Length == 0)
                 return new string[] { this.GetUsage() };
-            if (player.Team != Team.SCP)
+            if (player.Role.Team != Team.SCP)
                 return new string[] { "Nie możesz zmienić SCP nie będąc SCP" };
             if (player.Role == RoleType.Scp0492)
                 return new string[] { "Nie możesz zmienić SCP jako SCP 049-2" };
@@ -102,7 +102,7 @@ namespace Mistaken.BetterSCP
                     role = RoleType.Scp049;
                     break;
                 case "079":
-                    if (RealPlayers.List.Any(p => p.Team == Team.SCP && p.Id != player.Id))
+                    if (RealPlayers.List.Any(p => p.Role.Team == Team.SCP && p.Id != player.Id))
                         role = RoleType.Scp079;
                     else
                         return new string[] { "Jesteś jedynym SCP, nie możesz się zamienić w SCP 079" };
@@ -120,7 +120,7 @@ namespace Mistaken.BetterSCP
                         if (args[0].ToLower() == "yes")
                         {
                             player.Role = requester.Role;
-                            requester.Role = data.Value.Value;
+                            requester.Role.Type = data.Value.Value;
                             AlreadyChanged.Add(requester);
                             if (!requester.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
                                 SwapCooldown.Add(requester.UserId, RoundsCooldown);
@@ -194,12 +194,12 @@ namespace Mistaken.BetterSCP
                 AlreadyChanged.Add(player);
                 if (!player.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))
                     SwapCooldown.Add(player.UserId, RoundsCooldown);
-                player.Role = role;
+                player.Role.Type = role;
                 if (this.roleRequests.Any(i => i.Value.Key == player))
                 {
                     var request = this.roleRequests.First(i => i.Value.Key == player);
                     var requester = request.Key;
-                    requester.Role = request.Value.Value;
+                    requester.Role.Type = request.Value.Value;
                     this.roleRequests.Remove(request);
                     AlreadyChanged.Add(requester);
                     if (!requester.GetSessionVariable<bool>("SWAPSCP_OVERRIDE"))

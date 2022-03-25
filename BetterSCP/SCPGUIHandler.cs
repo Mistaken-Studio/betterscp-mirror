@@ -10,6 +10,7 @@ using System.Linq;
 using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
+using Exiled.API.Features.Roles;
 using MEC;
 using Mirror;
 using Mistaken.API;
@@ -163,7 +164,7 @@ namespace Mistaken.BetterSCP
 
         private static string GetColorByLevel(Player player)
         {
-            switch (player.Level)
+            switch ((player.Role as Scp079Role).Level)
             {
                 case 0:
                     return "red";
@@ -199,7 +200,7 @@ namespace Mistaken.BetterSCP
             string unit;
             foreach (var player in players.OrderByDescending(x => x.Role))
             {
-                switch (player.Role)
+                switch (player.Role.Type)
                 {
                     case RoleType.Scp0492:
                         zombie++;
@@ -310,7 +311,7 @@ namespace Mistaken.BetterSCP
                         if (RealPlayers.List.Any(p => p.UserId == item.Key))
                         {
                             var player = RealPlayers.List.First(p => p.UserId == item.Key);
-                            if (player.Team == Team.SCP)
+                            if (player.Role.Team == Team.SCP)
                             {
                                 if (item.Value == 1)
                                     SwapSCPCommand.SwapCooldown.Remove(player.UserId);
@@ -338,7 +339,7 @@ namespace Mistaken.BetterSCP
 
             if (Round.ElapsedTime.TotalSeconds < 2.5f)
                 return;
-            if (ev.NewRole.GetSide() != Side.Scp && ev.Player.Role.GetSide() == Side.Scp)
+            if (ev.NewRole.GetSide() != Side.Scp && ev.Player.Role.Type.GetSide() == Side.Scp)
             {
                 this.CallDelayed(
                     .2f,
@@ -373,7 +374,7 @@ namespace Mistaken.BetterSCP
         {
             if (!ev.IsAllowed)
                 return;
-            if (ev.Target.Team == Team.SCP && !blockUpdate)
+            if (ev.Target.Role.Team == Team.SCP && !blockUpdate)
             {
                 blockUpdate = true;
                 this.CallDelayed(1, () => SyncSCP(false));
@@ -426,7 +427,7 @@ namespace Mistaken.BetterSCP
             if (RealPlayers.Get(Team.SCP).Count() > 1)
                 message.Add(PluginHandler.Instance.Translation.Info_SCP_List);
 
-            foreach (var player in RealPlayers.List.Where(player => player.Team == Team.SCP && player.Role != RoleType.Scp0492 && p.Id != player.Id))
+            foreach (var player in RealPlayers.List.Where(player => player.Role.Team == Team.SCP && player.Role != RoleType.Scp0492 && p.Id != player.Id))
                 message.Add(string.Format(PluginHandler.Instance.Translation.Info_SCP_List_Element, player?.Nickname, player?.Role.ToString().ToUpper()));
 
             string fullmsg = string.Join("<br>", message);
