@@ -198,7 +198,7 @@ namespace Mistaken.BetterSCP
             bool scp049 = false;
             bool changed = forceUpdate;
             string unit;
-            foreach (var player in players.OrderByDescending(x => x.Role))
+            foreach (var player in players.OrderByDescending(x => x.Role.Type))
             {
                 switch (player.Role.Type)
                 {
