@@ -434,7 +434,8 @@ namespace Mistaken.BetterSCP
             if (this.TimeSinceChangedRole(p).TotalSeconds < 30 && SCPMessages.TryGetValue(p.Role, out string roleMessage))
                 fullmsg = $"<size=40>{roleMessage}<br><br><br><size=90%>{fullmsg}</size><br><br><br><br><br><br><br><br><br><br></size>";
 
-            p.ShowHint(fullmsg, 2);
+            if (p?.IsConnected ?? false && !(p.Connection is null))
+                p.ShowHint(fullmsg, 2);
 
             NorthwoodLib.Pools.ListPool<string>.Shared.Return(message);
             MasterHandler.LogTime("InfoMessageManager", "GetSCPS", start, DateTime.Now);
