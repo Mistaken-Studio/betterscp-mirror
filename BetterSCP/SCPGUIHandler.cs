@@ -15,6 +15,7 @@ using MEC;
 using Mirror;
 using Mistaken.API;
 using Mistaken.API.Diagnostics;
+using Mistaken.API.Extensions;
 using Mistaken.API.GUI;
 using Respawning;
 using Respawning.NamingRules;
@@ -434,7 +435,7 @@ namespace Mistaken.BetterSCP
             if (this.TimeSinceChangedRole(p).TotalSeconds < 30 && SCPMessages.TryGetValue(p.Role, out string roleMessage))
                 fullmsg = $"<size=40>{roleMessage}<br><br><br><size=90%>{fullmsg}</size><br><br><br><br><br><br><br><br><br><br></size>";
 
-            if (p?.IsConnected ?? false && !(p.Connection is null))
+            if (p.IsConnected())
                 p.ShowHint(fullmsg, 2);
 
             NorthwoodLib.Pools.ListPool<string>.Shared.Return(message);
