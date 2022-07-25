@@ -31,14 +31,14 @@ namespace Mistaken.BetterSCP
         public override void OnEnable()
         {
             Exiled.Events.Handlers.Player.Verified += this.Player_Verified;
-            Exiled.Events.Handlers.Player.VoiceChatting += this.Player_VoiceChatting;
+            Exiled.Events.Handlers.Player.Transmitting += this.Player_Transmitting;
         }
 
         /// <inheritdoc/>
         public override void OnDisable()
         {
             Exiled.Events.Handlers.Player.Verified -= this.Player_Verified;
-            Exiled.Events.Handlers.Player.VoiceChatting -= this.Player_VoiceChatting;
+            Exiled.Events.Handlers.Player.Transmitting -= this.Player_Transmitting;
         }
 
         private static readonly Dictionary<string, DateTime> LastSeeTime = new Dictionary<string, DateTime>();
@@ -99,21 +99,21 @@ namespace Mistaken.BetterSCP
             // InRange.Spawn(ev.Player.CameraTransform, Vector3.forward * 10f, new Vector3(10, 5, 20), OnEnterVision(ev.Player));
         }
 
-        private void Player_VoiceChatting(Exiled.Events.EventArgs.VoiceChattingEventArgs ev)
+        private void Player_Transmitting(Exiled.Events.EventArgs.TransmittingEventArgs ev)
         {
             if (ev.Player == null)
                 return;
             if (!ev.Player.IsScp)
                 return;
-            if (PluginHandler.Instance.Config.AllowedSCPVCRoles.Contains(ev.Player.Role))
+            if (PluginHandler.Instance.Config.AllowedSCPVCRoles.Contains(ev.Player.Role.Type))
             {
                 this.Log.Debug("[Mimic] Granted: Class", PluginHandler.Instance.Config.VerbouseOutput);
-                ev.DissonanceUserSetup.MimicAs939 = ev.IsVoiceChatting;
+                ev.DissonanceUserSetup.MimicAs939 = true;
             }
             else if (ev.Player.TryGetSessionVariable("HUMAN_VC_ACCESS", out bool value) && value)
             {
                 this.Log.Debug("[Mimic] Granted: Override", PluginHandler.Instance.Config.VerbouseOutput);
-                ev.DissonanceUserSetup.MimicAs939 = ev.IsVoiceChatting;
+                ev.DissonanceUserSetup.MimicAs939 = true;
             }
             else
             {
