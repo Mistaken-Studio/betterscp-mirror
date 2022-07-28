@@ -303,7 +303,7 @@ namespace Mistaken.BetterSCP
         {
             blockUpdate = true;
             this.CallDelayed(2, () => SyncSCP(true));
-            this.CallDelayed(
+            /*this.CallDelayed(
                 5,
                 () =>
                 {
@@ -322,12 +322,12 @@ namespace Mistaken.BetterSCP
                         }
                     }
                 },
-                "RoundStart");
+                "RoundStart");*/
         }
 
         private void Server_WaitingForPlayers()
         {
-            SwapSCPCommand.AlreadyChanged.Clear();
+            // SwapSCPCommand.AlreadyChanged.Clear();
             Cache.Clear();
             blockUpdate = false;
         }
