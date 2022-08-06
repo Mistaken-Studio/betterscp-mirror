@@ -105,15 +105,16 @@ namespace Mistaken.BetterSCP
                 return;
             if (!ev.Player.IsScp)
                 return;
+
             if (PluginHandler.Instance.Config.AllowedSCPVCRoles.Contains(ev.Player.Role.Type))
             {
                 this.Log.Debug("[Mimic] Granted: Class", PluginHandler.Instance.Config.VerbouseOutput);
-                ev.DissonanceUserSetup.MimicAs939 = true;
+                ev.DissonanceUserSetup.MimicAs939 = ev.IsTransmitting;
             }
             else if (ev.Player.TryGetSessionVariable("HUMAN_VC_ACCESS", out bool value) && value)
             {
                 this.Log.Debug("[Mimic] Granted: Override", PluginHandler.Instance.Config.VerbouseOutput);
-                ev.DissonanceUserSetup.MimicAs939 = true;
+                ev.DissonanceUserSetup.MimicAs939 = ev.IsTransmitting;
             }
             else
             {
