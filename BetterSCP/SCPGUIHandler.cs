@@ -19,7 +19,6 @@ using Mistaken.API.Extensions;
 using Mistaken.API.GUI;
 using Respawning;
 using Respawning.NamingRules;
-using UnityEngine;
 
 namespace Mistaken.BetterSCP
 {
@@ -334,7 +333,7 @@ namespace Mistaken.BetterSCP
 
         private void Player_ChangingRole(Exiled.Events.EventArgs.ChangingRoleEventArgs ev)
         {
-            if (ev.NewRole.GetSide() == Exiled.API.Enums.Side.Scp)
+            if (ev.NewRole.GetSide() == Side.Scp)
                 this.RunCoroutine(this.UpdateSCPs(ev.Player), "UpdateSCPs");
             SpawnTimes[ev.Player] = DateTime.Now;
 
@@ -428,8 +427,8 @@ namespace Mistaken.BetterSCP
             if (RealPlayers.Get(Team.SCP).Count() > 1)
                 message.Add(PluginHandler.Instance.Translation.Info_SCP_List);
 
-            foreach (var player in RealPlayers.List.Where(player => player.Role.Team == Team.SCP && player.Role != RoleType.Scp0492 && p.Id != player.Id))
-                message.Add(string.Format(PluginHandler.Instance.Translation.Info_SCP_List_Element, player?.Nickname, player?.Role.ToString().ToUpper()));
+            foreach (var player in RealPlayers.List.Where(player => player.Role.Team == Team.SCP && player.Role.Type != RoleType.Scp0492 && p.Id != player.Id))
+                message.Add(string.Format(PluginHandler.Instance.Translation.Info_SCP_List_Element, player?.Nickname, player?.Role.Type.ToString().ToUpper()));
 
             string fullmsg = string.Join("<br>", message);
             if (this.TimeSinceChangedRole(p).TotalSeconds < 30 && SCPMessages.TryGetValue(p.Role, out string roleMessage))
