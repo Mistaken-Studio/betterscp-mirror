@@ -421,8 +421,8 @@ namespace Mistaken.BetterSCP
             DateTime start = DateTime.Now;
             List<string> message = NorthwoodLib.Pools.ListPool<string>.Shared.Rent();
             message.Add("<br><br><br>");
-            /*if (p.Role != RoleType.Scp0492 && 30 - Round.ElapsedTime.TotalSeconds > 0)
-                message.Add(string.Format(PluginHandler.Instance.Translation.Info_SCP_Swap, Mathf.RoundToInt(30 - (float)Round.ElapsedTime.TotalSeconds)));*/
+            if (p.Role != RoleType.Scp0492 && 45 - Round.ElapsedTime.TotalSeconds > 0)
+                message.Add(string.Format(PluginHandler.Instance.Translation.Info_SCP_Swap, UnityEngine.Mathf.RoundToInt(30 - (float)Round.ElapsedTime.TotalSeconds)));
 
             if (RealPlayers.Get(Team.SCP).Count() > 1)
                 message.Add(PluginHandler.Instance.Translation.Info_SCP_List);
